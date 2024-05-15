@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: toex
+  datasource:
+    url: jdbc:mysql://localhost:3306/toex #db? ?? ?? ??? local?? ???
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# JWT ?? ??
+jwt:
+  secret:
+  access-token-time:
+  refresh-token-time:
+
+
+# (???? x => ????? ??)
+# ???, ??, ???? client id//
+security:
+  oauth2:
+    client:
+      registration:
+        kakao:
+          grant_type: ${GRANT_TYPE}
+          client_id: ${CLIENT_ID}
+          client_secret: ${CLIENT_SECRET}
+          redirect_uri: ${REDIRECT_URI}
+
+        google:
+          grant_type: ${GRANT_TYPE}
+          client_id: ${CLIENT_ID}
+          client_secret: ${CLIENT_SECRET}
+          redirect_uri: ${REDIRECT_URI}
+
+        naver:
+          grant_type: ${GRANT_TYPE}
+          client_id: ${CLIENT_ID}
+          client_secret: ${CLIENT_SECRET}
+          redirect_uri: ${REDIRECT_URI}
