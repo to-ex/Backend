@@ -22,7 +22,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Objects;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -37,14 +36,14 @@ public class JwtAuthenticationProvider {
     private String secretKey;
 
     @Value("${jwt.access-token-time}")
-    private Long access_token_time;
+    private Long accessTokenTime;
 
     @Value("${jwt.refresh-token-time}")
-    private Long refresh_token_time;
+    private Long refreshTokenTime;
 
     @PostConstruct
     public void initialize() {
-        key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public static String extract(HttpServletRequest request) {
@@ -62,21 +61,20 @@ public class JwtAuthenticationProvider {
 
     // Access Token 생성
     public String createAccessToken(Long userId, String name) {
-        return createToken(userId, name, "Access", access_token_time);
+        return createToken(userId, name, "Access", accessTokenTime);
     }
 
     // Refresh Token 생성
     public String createRefreshToken(Long userId, String name) {
-        return createToken(userId, name, "Refresh", refresh_token_time);
+        return createToken(userId, name, "Refresh", refreshTokenTime);
     }
 
-    public String createToken(Long userId, String name,
-                              String type, Long tokenValidTime) {
+    public String createToken(Long userId, String name, String type, Long tokenValidTime) {
         return Jwts.builder()
                 .setHeaderParam("type", type) // Header 구성
                 .setClaims(createClaims(userId, name)) // Payload - Claims 구성
                 .setSubject(userId.toString()) // Payload - Subject 구성
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(key)
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
                 .compact();
     }
@@ -96,8 +94,9 @@ public class JwtAuthenticationProvider {
     }
 
     public String getId(String accessToken) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(accessToken)
                 .getBody()
                 .getSubject();
@@ -120,8 +119,4 @@ public class JwtAuthenticationProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
-
-//    public String refreshTokenValidation(String token) {
-//        // RefreshToken 저장 방식 결정 후 추가
-//    }
 }
