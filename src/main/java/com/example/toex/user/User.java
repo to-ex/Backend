@@ -1,5 +1,6 @@
 package com.example.toex.user;
 
+import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,5 +27,11 @@ public class User {
     public User(String email, String name) {
         this.email = email;
         this.name = name;
+    }
+
+    // 사용자 정보 업데이트 메서드
+    public void update(UserInfoUpdateRequest userInfoUpdateRequest) {
+        this.name = userInfoUpdateRequest.getName();
+        this.email = userInfoUpdateRequest.getEmail();
     }
 }
