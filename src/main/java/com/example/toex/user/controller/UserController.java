@@ -31,7 +31,7 @@ public class UserController {
 
     //네이버 로그인
     @PostMapping("/oauth/naver/login")
-    public LoginResponse loginNaver(@RequestParam("code") String authorizationCode) {
-        return oAuthService.loginNaver(authorizationCode);
+    public LoginResponse loginNaver(@RequestParam("code") String authorizationCode,String state) {
+        return oAuthService.loginNaver(authorizationCode,state);
     }
 }
