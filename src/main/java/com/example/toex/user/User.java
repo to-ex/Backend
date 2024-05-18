@@ -1,21 +1,30 @@
 package com.example.toex.user;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="user")
+@Setter
+@NoArgsConstructor
 public class User {
 
     @Id
-    @Column(name="user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    private String email;
     private String name;
 
-    private String email;
+    @Builder
+    public User(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
 }
