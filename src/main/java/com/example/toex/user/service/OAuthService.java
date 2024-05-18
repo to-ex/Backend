@@ -48,8 +48,8 @@ public class OAuthService {
                 .id(userId)
                 .name(info.getName())
                 .email(info.getEmail())
-                .accessToken(jwtAuthenticationProvider.createAccessToken(userId, info.getName()))
-                .refreshToken(jwtAuthenticationProvider.createRefreshToken(userId, info.getName()))
+                .accessToken(jwtAuthenticationProvider.createAccessToken(userId, info.getEmail()))
+                .refreshToken(jwtAuthenticationProvider.createRefreshToken(userId, info.getEmail()))
                 .build();
     }
 
