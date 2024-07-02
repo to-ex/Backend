@@ -42,29 +42,31 @@ public class OAuthService {
         return loginCommon(info);
     }
 
+
     private <T extends UserInfo> LoginResponse loginCommon(T info) {
-        Long userId = findOrCreateMember(info);
+        User user = findOrCreateMember(info);
         return LoginResponse.builder()
-                .id(userId)
-                .name(info.getName())
-                .email(info.getEmail())
-                .accessToken(jwtAuthenticationProvider.createAccessToken(userId, info.getEmail()))
-                .refreshToken(jwtAuthenticationProvider.createRefreshToken(userId, info.getEmail()))
+                .id(user.getUserId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .accessToken(jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail()))
+                .refreshToken(user.getRefreshToken())
                 .build();
     }
 
-    private <T extends UserInfo> Long findOrCreateMember(T info) {
+    private <T extends UserInfo> User findOrCreateMember(T info) {
         return userRepository.findByEmail(info.getEmail())
-                .map(User::getUserId)
                 .orElseGet(() -> newMember(info));
     }
 
-    private <T extends UserInfo> Long newMember(T info) {
+    private <T extends UserInfo> User newMember(T info) {
+        String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
         User user = User.builder()
                 .email(info.getEmail())
                 .name(info.getName())
+                .refreshToken(refreshToken)
                 .build();
         userRepository.save(user);
-        return user.getUserId();
+        return user;
     }
 }

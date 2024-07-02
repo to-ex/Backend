@@ -19,14 +19,16 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-
     private String email;
     private String name;
+    private String refreshToken;
 
     @Builder
-    public User(String email, String name) {
+    public User(String email, String name,String refreshToken) {
         this.email = email;
         this.name = name;
+        this.refreshToken = refreshToken;
+
     }
 
     // 사용자 정보 업데이트 메서드
