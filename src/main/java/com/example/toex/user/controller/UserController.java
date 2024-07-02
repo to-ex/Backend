@@ -1,6 +1,6 @@
 package com.example.toex.user.controller;
 
-import com.example.toex.user.domain.dto.LoginResponse;
+import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.domain.dto.UserInfoResponse;
 import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
 import com.example.toex.user.service.*;
@@ -18,23 +18,6 @@ public class UserController {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final UserService userService;
 
-    // 카카오 로그인
-    @PostMapping("/oauth/kakao/login")
-    public LoginResponse loginKakao(@RequestParam("code") String authorizationCode) {
-        return oAuthService.loginKakao(authorizationCode);
-    }
-
-    //구글 로그인
-    @PostMapping("/oauth/google/login")
-    public LoginResponse loginGoogle(@RequestParam("code") String authorizationCode) {
-        return oAuthService.loginGoogle(authorizationCode);
-    }
-
-    //네이버 로그인
-    @PostMapping("/oauth/naver/login")
-    public LoginResponse loginNaver(@RequestParam("code") String authorizationCode,String state) {
-        return oAuthService.loginNaver(authorizationCode,state);
-    }
 
     // 내 정보관리 페이지 조회
     @GetMapping("/myinfo")

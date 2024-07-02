@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
-            "/",  "/swagger-ui/**", "/v3/api-docs/**","/user/oauth/**","/app/login/**"
+            "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**"
     };
 
     @Bean

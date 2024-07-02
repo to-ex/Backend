@@ -3,9 +3,10 @@ package com.example.toex.user.service;
 import com.example.toex.client.GoogleClient;
 import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
+import com.example.toex.common.exception.CustomErrorException;
 import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.user.User;
-import com.example.toex.user.domain.dto.LoginResponse;
+import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.domain.params.GoogleInfoResponse;
 import com.example.toex.user.domain.params.KakaoInfoResponse;
 import com.example.toex.user.domain.params.NaverInfoResponse;
@@ -24,28 +25,28 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
-    public LoginResponse loginKakao(String authorizationCode) {
+    public UserResponse loginKakao(String authorizationCode) {
         String accessToken = kakaoClient.requestAccessToken(authorizationCode);
         KakaoInfoResponse info = kakaoClient.requestKakaoInfo(accessToken);
         return loginCommon(info);
     }
 
-    public LoginResponse loginNaver(String authorizationCode, String state) {
+    public UserResponse loginNaver(String authorizationCode, String state) {
         String accessToken = naverClient.requestAccessToken(authorizationCode, state);
         NaverInfoResponse info = naverClient.requestNaverInfo(accessToken);
         return loginCommon(info);
     }
 
-    public LoginResponse loginGoogle(String authorizationCode) {
+    public UserResponse loginGoogle(String authorizationCode) {
         String accessToken = googleClient.requestAccessToken(authorizationCode);
         GoogleInfoResponse info = googleClient.requestGoogleInfo(accessToken);
         return loginCommon(info);
     }
 
 
-    private <T extends UserInfo> LoginResponse loginCommon(T info) {
+    private <T extends UserInfo> UserResponse loginCommon(T info) {
         User user = findOrCreateMember(info);
-        return LoginResponse.builder()
+        return UserResponse.builder()
                 .id(user.getUserId())
                 .name(user.getName())
                 .email(user.getEmail())
@@ -68,5 +69,14 @@ public class OAuthService {
                 .build();
         userRepository.save(user);
         return user;
+    }
+
+    // 로그아웃 메서드
+
+    public void logout(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.invalidateRefreshToken();
+        userRepository.save(user);
     }
 }

@@ -36,4 +36,9 @@ public class User {
         this.name = userInfoUpdateRequest.getName();
         this.email = userInfoUpdateRequest.getEmail();
     }
+
+    // refreshToken 무효화 메서드
+    public void invalidateRefreshToken() {
+        this.refreshToken = null;
+    }
 }
