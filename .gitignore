@@ -36,4 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
-application.yml
+#application.yml
+
+# Ignore the env.properties file
+/src/main/resources/properties/env.properties
+
+# Ignore the PropertyConfig.java file
+/src/main/java/com/example/toex/config/PropertyConfig.java

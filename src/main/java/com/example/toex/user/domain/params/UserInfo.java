@@ -4,4 +4,5 @@ public interface UserInfo {
 //    String getId();
     String getEmail();
     String getName();
+
 }
