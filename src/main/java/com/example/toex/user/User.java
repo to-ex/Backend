@@ -1,6 +1,7 @@
 package com.example.toex.user;
 
 import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,11 +25,11 @@ public class User {
     private String refreshToken;
 
     @Builder
-    public User(String email, String name,String refreshToken) {
+    public User(Long userId, String email, String name, String refreshToken) {
+        this.userId = userId;
         this.email = email;
         this.name = name;
         this.refreshToken = refreshToken;
-
     }
 
     // 사용자 정보 업데이트 메서드
@@ -37,8 +38,13 @@ public class User {
         this.email = userInfoUpdateRequest.getEmail();
     }
 
-    // refreshToken 무효화 메서드
+
     public void invalidateRefreshToken() {
         this.refreshToken = null;
     }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
 }

@@ -2,6 +2,8 @@ package com.example.toex.jwt;
 
 import com.example.toex.common.exception.CustomException;
 import com.example.toex.common.exception.enums.ErrorCode;
+import com.example.toex.user.User;
+import com.example.toex.user.respository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,6 +32,8 @@ import java.util.Objects;
 public class JwtAuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
+
+    private final UserRepository userRepository;
     private static final String HEADER_NAME = "Authorization";
     private static final String SCHEME = "Bearer";
     private SecretKey key;
@@ -118,5 +122,34 @@ public class JwtAuthenticationProvider {
         log.info("Extracted email from token: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    // Refresh token 검증
+    public Claims verifyRefreshToken(String refreshToken) {
+        try {
+            Claims claims = verify(refreshToken);
+            if (!claims.get("type").equals("Refresh")) {
+                throw new CustomException(ErrorCode.INVALID_TOKEN);
+            }
+            return claims;
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+    // Access token 재발급
+    public String regenerateAccessToken(String refreshToken) {
+        Claims claims = verifyRefreshToken(refreshToken);
+        Long userId = Long.parseLong(claims.get("userId").toString());
+        String email = claims.get("email").toString();
+        return createAccessToken(userId, email);
+    }
+
+    // Refresh token 재발급
+    public String regenerateRefreshToken(String accessToken) {
+        Claims claims = verify(accessToken);
+        Long userId = Long.parseLong(claims.get("userId").toString());
+        String email = claims.get("email").toString();
+        return createRefreshToken(userId, email);
     }
 }
