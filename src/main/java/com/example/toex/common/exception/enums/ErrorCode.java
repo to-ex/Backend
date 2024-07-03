@@ -27,6 +27,7 @@ public enum ErrorCode {
     ALREADY_LIKED(409, "LIKE001", "이미 좋아요를 누른 게시물입니다."),
     NOT_LIKED(403, "LIKE002", "좋아요를 누르지 않은 게시물입니다. 삭제할 수 없습니다."),
 
+
     // COMMENT
     INVALID_COMMENT(404, "COMMENT001", "존재하지 않는 댓글입니다."),
     ;
