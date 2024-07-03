@@ -1,9 +1,11 @@
 package com.example.toex.user.controller;
 
 
+import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.user.domain.dto.UserRequest;
 import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.service.OAuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,17 @@ public class AuthController {
     private final OAuthService oAuthService;
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody UserRequest userRequest) {
-        oAuthService.logout(userRequest.getUserId());
-        return ResponseEntity.ok("로그아웃 되었습니다");
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        oAuthService.logout(request);
+        return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(HttpServletRequest request) {
+        oAuthService.withdraw(request);
+        return ResponseEntity.ok().build();
+    }
+
 
 
     // 카카오 로그인
