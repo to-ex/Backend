@@ -36,9 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
-/src/main/resources/application.yml
+#/src/main/resources/application.yml
 
-src/main/resources
+#src/main/resources
 
 # Ignore the env.properties file
 /src/main/resources/properties/env.properties
