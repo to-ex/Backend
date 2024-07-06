@@ -3,7 +3,6 @@ package com.example.toex.user.service;
 import com.example.toex.client.GoogleClient;
 import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
-
 import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.user.User;
 import com.example.toex.user.domain.dto.UserResponse;
@@ -11,7 +10,6 @@ import com.example.toex.user.domain.params.GoogleInfoResponse;
 import com.example.toex.user.domain.params.KakaoInfoResponse;
 import com.example.toex.user.domain.params.NaverInfoResponse;
 import com.example.toex.user.domain.params.UserInfo;
-
 import com.example.toex.user.respository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +42,6 @@ public class OAuthService {
         GoogleInfoResponse info = googleClient.requestGoogleInfo(accessToken);
         return loginCommon(info);
     }
-
 
     private <T extends UserInfo> UserResponse loginCommon(T info) {
         User user = findOrCreateMember(info);
@@ -80,10 +77,9 @@ public class OAuthService {
         return user;
     }
 
-
     // 로그아웃 메서드
     public void logout(HttpServletRequest request) {
-        String accessToken = JwtAuthenticationProvider.extract(request);
+        String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
         String email = claims.getSubject();
 
@@ -96,7 +92,7 @@ public class OAuthService {
 
     // 탈퇴 메서드
     public void withdraw(HttpServletRequest request) {
-        String accessToken = JwtAuthenticationProvider.extract(request);
+        String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
         String email = claims.getSubject();
 
@@ -105,6 +101,4 @@ public class OAuthService {
 
         userRepository.delete(user);
     }
-
-
 }

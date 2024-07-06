@@ -32,7 +32,6 @@ import java.util.Objects;
 public class JwtAuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
-
     private final UserRepository userRepository;
     private static final String HEADER_NAME = "Authorization";
     private static final String SCHEME = "Bearer";
@@ -52,7 +51,7 @@ public class JwtAuthenticationProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public static String extract(HttpServletRequest request) {
+    public String extract(HttpServletRequest request) {
         String authorization = request.getHeader(HEADER_NAME);
         if (authorization != null && authorization.toLowerCase().startsWith(SCHEME.toLowerCase())) {
             return authorization.substring(SCHEME.length()).trim();
@@ -81,7 +80,7 @@ public class JwtAuthenticationProvider {
                 .compact();
     }
 
-    public static Claims createClaims(Long userId, String email) {
+    public Claims createClaims(Long userId, String email) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
         claims.put("email", email);
@@ -125,27 +124,29 @@ public class JwtAuthenticationProvider {
     }
 
     // Refresh token 검증
-    public Claims verifyRefreshToken(String refreshToken) {
+    public boolean verifyRefreshToken(String refreshToken) {
         try {
             Claims claims = verify(refreshToken);
-            if (!claims.get("type").equals("Refresh")) {
+            if (!"Refresh".equals(claims.get("type"))) {
                 throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
-            return claims;
+            return true;
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
 
+
     // Access token 재발급
     public String regenerateAccessToken(String refreshToken) {
-        Claims claims = verifyRefreshToken(refreshToken);
+        Claims claims = verify(refreshToken);
         Long userId = Long.parseLong(claims.get("userId").toString());
         String email = claims.get("email").toString();
         return createAccessToken(userId, email);
     }
 
-    // Refresh token 재발급
+
+    // Refresh token 재발급 (필요시 구현)
     public String regenerateRefreshToken(String accessToken) {
         Claims claims = verify(accessToken);
         Long userId = Long.parseLong(claims.get("userId").toString());

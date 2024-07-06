@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
 
         // 특정 엔드포인트는 필터링 제외
-        if (pathMatcher.match("/api/v1/auth/login/**", requestUri) || pathMatcher.match("/api/v1/auth/callback/**", requestUri)) {
+        if (pathMatcher.match("/api/v1/auth/login/**", requestUri) || pathMatcher.match("/api/v1/auth/callback/**", requestUri) || pathMatcher.match("/api/v1/auth/member/refresh", requestUri)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,31 +46,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("JWT Refresh Token: {}", refreshToken);
 
         try {
-            if (accessToken != null && refreshToken != null) {
-                // Case 4: Access Token과 Refresh Token 모두 유효한 경우 -> 정상 처리
+            if (accessToken != null) {
+                // Access Token이 있는 경우
                 jwtAuthenticationProvider.verify(accessToken);
-                jwtAuthenticationProvider.verifyRefreshToken(refreshToken);
                 verifyTokenAndSetAuthentication(accessToken);
-            } else if (accessToken == null && refreshToken != null) {
-                // Case 2: Access Token은 만료됐지만, Refresh Token은 유효한 경우 -> Refresh Token을 검증하여 Access Token 재발급
+            } else if (refreshToken != null && requestUri.equals("/api/v1/auth/user/refresh")) {
+                // Access Token이 없고 Refresh Token만 있는 경우 (토큰 갱신 요청)
                 jwtAuthenticationProvider.verifyRefreshToken(refreshToken);
                 String newAccessToken = jwtAuthenticationProvider.regenerateAccessToken(refreshToken);
                 response.setHeader("AccessToken", newAccessToken);
                 verifyTokenAndSetAuthentication(newAccessToken);
-            } else if (accessToken != null && refreshToken == null) {
-                // Case 3: Access Token은 유효하지만, Refresh Token은 만료된 경우 -> 재로그인 요구
-                throw new CustomException(ErrorCode.INVALID_TOKEN);
             } else {
-                // Case 1: Access Token과 Refresh Token 모두가 만료된 경우 -> 에러 발생, 재로그인 요구
+                // Access Token과 Refresh Token 모두 없는 경우 -> 에러 발생, 재로그인 요구
                 throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
             filterChain.doFilter(request, response);
         } catch (CustomException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
             this.responseSend(response, errorResponse);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             e.printStackTrace();
             ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getClass().getName(), e.getMessage());
             this.responseSend(response, errorResponse);

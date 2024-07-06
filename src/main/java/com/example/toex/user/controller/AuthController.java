@@ -1,7 +1,10 @@
 package com.example.toex.user.controller;
 
 
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.jwt.JwtAuthenticationProvider;
+import com.example.toex.user.domain.dto.TokenInfo;
 import com.example.toex.user.domain.dto.UserRequest;
 import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.service.OAuthService;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final OAuthService oAuthService;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
@@ -30,6 +34,17 @@ public class AuthController {
     public ResponseEntity<Void> withdraw(HttpServletRequest request) {
         oAuthService.withdraw(request);
         return ResponseEntity.ok().build();
+    }
+    // 토큰 갱신
+    @PatchMapping("/user/refresh")
+    public ResponseEntity<TokenInfo> refreshLogin(HttpServletRequest request) {
+        String refreshToken = request.getHeader("RefreshToken");
+        if (refreshToken == null || !jwtAuthenticationProvider.verifyRefreshToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+        String newAccessToken = jwtAuthenticationProvider.regenerateAccessToken(refreshToken);
+        TokenInfo tokenInfo = new TokenInfo(newAccessToken, refreshToken);
+        return ResponseEntity.ok(tokenInfo);
     }
 
 
