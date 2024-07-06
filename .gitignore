@@ -38,6 +38,8 @@ out/
 
 /src/main/resources/application.yml
 
+src/main/resources
+
 # Ignore the env.properties file
 /src/main/resources/properties/env.properties
 
