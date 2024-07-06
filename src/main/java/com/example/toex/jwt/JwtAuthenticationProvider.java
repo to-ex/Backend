@@ -5,14 +5,15 @@ import com.example.toex.common.exception.enums.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Objects;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider {
@@ -48,58 +50,55 @@ public class JwtAuthenticationProvider {
 
     public static String extract(HttpServletRequest request) {
         String authorization = request.getHeader(HEADER_NAME);
-        if (!Objects.isNull(authorization) && authorization.toLowerCase().startsWith(SCHEME.toLowerCase())) {
-            String tokenValue = authorization.substring(SCHEME.length()).trim();
-            int commaIndex = tokenValue.indexOf(',');
-            if (commaIndex > 0) {
-                tokenValue = tokenValue.substring(0, commaIndex);
-            }
-            return tokenValue;
+        if (authorization != null && authorization.toLowerCase().startsWith(SCHEME.toLowerCase())) {
+            return authorization.substring(SCHEME.length()).trim();
         }
         return null;
     }
 
-    // Access Token 생성
-    public String createAccessToken(Long userId, String name) {
-        return createToken(userId, name, "Access", accessTokenTime);
+    public String createAccessToken(Long userId, String email) {
+        log.info("Creating Access Token for userId: {}, email: {}", userId, email);
+        return createToken(userId, email, "Access", accessTokenTime);
     }
 
-    // Refresh Token 생성
-    public String createRefreshToken(Long userId, String name) {
-        return createToken(userId, name, "Refresh", refreshTokenTime);
+    public String createRefreshToken(Long userId, String email) {
+        log.info("Creating Refresh Token for userId: {}, email: {}", userId, email);
+        return createToken(userId, email, "Refresh", refreshTokenTime);
     }
 
-    public String createToken(Long userId, String name, String type, Long tokenValidTime) {
+    public String createToken(Long userId, String email, String type, Long tokenValidTime) {
+        log.info("Creating Token - Type: {}, userId: {}, email: {}", type, userId, email);
         return Jwts.builder()
-                .setHeaderParam("type", type) // Header 구성
-                .setClaims(createClaims(userId, name)) // Payload - Claims 구성
-                .setSubject(userId.toString()) // Payload - Subject 구성
+                .setHeaderParam("type", type)
+                .setClaims(createClaims(userId, email))
+                .setSubject(email)
                 .signWith(key)
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
                 .compact();
     }
 
-    public static Claims createClaims(Long userId, String name) {
+    public static Claims createClaims(Long userId, String email) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
-        claims.put("name", name);
+        claims.put("email", email);
+        log.info("UserId from Claims: {}", userId);
+        log.info("Email from Claims: {}", email);
         return claims;
     }
 
     public Long getUserId() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String accessToken = request.getHeader("Authorization").split(" ")[1].trim();
-        String id = getId(accessToken);
-        return Long.parseLong(id);
-    }
+        String accessToken = extract(request);
+        log.info("Extracted access token: {}", accessToken);
 
-    public String getId(String accessToken) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
-                .getSubject();
+        if (accessToken != null) {
+            Claims claims = verify(accessToken);
+            log.info("Claims from token: {}", claims);
+            log.info("User ID from claims: {}", claims.get("userId"));
+
+            return Long.parseLong(claims.get("userId").toString());
+        }
+        return null;
     }
 
     public Claims verify(String token) {
@@ -116,6 +115,7 @@ public class JwtAuthenticationProvider {
 
     public Authentication getAuthentication(String token) {
         String email = verify(token).getSubject();
+        log.info("Extracted email from token: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
