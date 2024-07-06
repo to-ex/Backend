@@ -40,6 +40,7 @@ out/
 
 # Ignore the env.properties file
 /src/main/resources/properties/env.properties
+src/main/resources/properties/*
 
 # Ignore the PropertyConfig.java file
 /src/main/java/com/example/toex/config/PropertyConfig.java
