@@ -27,15 +27,20 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private static final String[] EXCLUDE_URLS = {
+            "/api/v1/auth/login/**"
+    };
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String requestUri = request.getRequestURI();
 
         // 특정 엔드포인트는 필터링 제외
-        if (pathMatcher.match("/api/v1/auth/login/**", requestUri) || pathMatcher.match("/api/v1/auth/callback/**", requestUri) || pathMatcher.match("/api/v1/auth/member/refresh", requestUri)) {
-            filterChain.doFilter(request, response);
-            return;
+        for (String excludeUrl : EXCLUDE_URLS) {
+            if (pathMatcher.match(excludeUrl, requestUri)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
         String accessToken = jwtAuthenticationProvider.extract(request);

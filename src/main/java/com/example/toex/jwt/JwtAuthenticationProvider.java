@@ -5,6 +5,7 @@ import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.user.User;
 import com.example.toex.user.respository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -71,15 +72,19 @@ public class JwtAuthenticationProvider {
 
     public String createToken(Long userId, String email, String type, Long tokenValidTime) {
         log.info("Creating Token - Type: {}, userId: {}, email: {}", type, userId, email);
+        Claims claims = Jwts.claims();
+        claims.put("userId", userId);
+        claims.put("email", email);
+        claims.put("type", type);  // 클레임에 "type" 추가
+
         return Jwts.builder()
                 .setHeaderParam("type", type)
-                .setClaims(createClaims(userId, email))
+                .setClaims(claims)
                 .setSubject(email)
                 .signWith(key)
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
                 .compact();
     }
-
     public Claims createClaims(Long userId, String email) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
@@ -111,10 +116,15 @@ public class JwtAuthenticationProvider {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (ExpiredJwtException e) {
+            log.error("Token expired: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid token: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
+
 
     public Authentication getAuthentication(String token) {
         String email = verify(token).getSubject();
@@ -128,13 +138,18 @@ public class JwtAuthenticationProvider {
         try {
             Claims claims = verify(refreshToken);
             if (!"Refresh".equals(claims.get("type"))) {
+                System.out.println("여기서");
                 throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
             return true;
+        } catch (ExpiredJwtException e) {
+            log.error("Refresh token expired: {}", e.getMessage());
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
+
 
 
     // Access token 재발급

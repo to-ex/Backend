@@ -43,7 +43,8 @@ public class AuthController {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
         String newAccessToken = jwtAuthenticationProvider.regenerateAccessToken(refreshToken);
-        TokenInfo tokenInfo = new TokenInfo(newAccessToken, refreshToken);
+        String newRefreshToken = jwtAuthenticationProvider.regenerateRefreshToken(refreshToken);
+        TokenInfo tokenInfo = new TokenInfo(newAccessToken, newRefreshToken);
         return ResponseEntity.ok(tokenInfo);
     }
 
