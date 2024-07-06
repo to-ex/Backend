@@ -2,7 +2,10 @@ package com.example.toex.jwt;
 
 import com.example.toex.common.exception.CustomException;
 import com.example.toex.common.exception.enums.ErrorCode;
+import com.example.toex.user.User;
+import com.example.toex.user.respository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -30,6 +33,7 @@ import java.util.Objects;
 public class JwtAuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
     private static final String HEADER_NAME = "Authorization";
     private static final String SCHEME = "Bearer";
     private SecretKey key;
@@ -48,7 +52,7 @@ public class JwtAuthenticationProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public static String extract(HttpServletRequest request) {
+    public String extract(HttpServletRequest request) {
         String authorization = request.getHeader(HEADER_NAME);
         if (authorization != null && authorization.toLowerCase().startsWith(SCHEME.toLowerCase())) {
             return authorization.substring(SCHEME.length()).trim();
@@ -68,16 +72,20 @@ public class JwtAuthenticationProvider {
 
     public String createToken(Long userId, String email, String type, Long tokenValidTime) {
         log.info("Creating Token - Type: {}, userId: {}, email: {}", type, userId, email);
+        Claims claims = Jwts.claims();
+        claims.put("userId", userId);
+        claims.put("email", email);
+        claims.put("type", type);  // 클레임에 "type" 추가
+
         return Jwts.builder()
                 .setHeaderParam("type", type)
-                .setClaims(createClaims(userId, email))
+                .setClaims(claims)
                 .setSubject(email)
                 .signWith(key)
                 .setExpiration(new Date(System.currentTimeMillis() + tokenValidTime))
                 .compact();
     }
-
-    public static Claims createClaims(Long userId, String email) {
+    public Claims createClaims(Long userId, String email) {
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
         claims.put("email", email);
@@ -108,15 +116,56 @@ public class JwtAuthenticationProvider {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (ExpiredJwtException e) {
+            log.error("Token expired: {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid token: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
     }
+
 
     public Authentication getAuthentication(String token) {
         String email = verify(token).getSubject();
         log.info("Extracted email from token: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    // Refresh token 검증
+    public boolean verifyRefreshToken(String refreshToken) {
+        try {
+            Claims claims = verify(refreshToken);
+            if (!"Refresh".equals(claims.get("type"))) {
+                System.out.println("여기서");
+                throw new CustomException(ErrorCode.INVALID_TOKEN);
+            }
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.error("Refresh token expired: {}", e.getMessage());
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+    }
+
+
+
+    // Access token 재발급
+    public String regenerateAccessToken(String refreshToken) {
+        Claims claims = verify(refreshToken);
+        Long userId = Long.parseLong(claims.get("userId").toString());
+        String email = claims.get("email").toString();
+        return createAccessToken(userId, email);
+    }
+
+
+    // Refresh token 재발급 (필요시 구현)
+    public String regenerateRefreshToken(String accessToken) {
+        Claims claims = verify(accessToken);
+        Long userId = Long.parseLong(claims.get("userId").toString());
+        String email = claims.get("email").toString();
+        return createRefreshToken(userId, email);
     }
 }

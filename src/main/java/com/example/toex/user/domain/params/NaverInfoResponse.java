@@ -19,6 +19,7 @@ public class NaverInfoResponse implements UserInfo {
         return response != null ? response.getName() : null;
     }
 
+
     @Data
     public static class Response {
         private String id;

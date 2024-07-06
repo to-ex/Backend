@@ -5,13 +5,14 @@ import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
 import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.user.User;
-import com.example.toex.user.domain.dto.LoginResponse;
+import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.domain.params.GoogleInfoResponse;
 import com.example.toex.user.domain.params.KakaoInfoResponse;
 import com.example.toex.user.domain.params.NaverInfoResponse;
 import com.example.toex.user.domain.params.UserInfo;
-
 import com.example.toex.user.respository.UserRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,47 +25,80 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
-    public LoginResponse loginKakao(String authorizationCode) {
+    public UserResponse loginKakao(String authorizationCode) {
         String accessToken = kakaoClient.requestAccessToken(authorizationCode);
         KakaoInfoResponse info = kakaoClient.requestKakaoInfo(accessToken);
         return loginCommon(info);
     }
 
-    public LoginResponse loginNaver(String authorizationCode, String state) {
+    public UserResponse loginNaver(String authorizationCode, String state) {
         String accessToken = naverClient.requestAccessToken(authorizationCode, state);
         NaverInfoResponse info = naverClient.requestNaverInfo(accessToken);
         return loginCommon(info);
     }
 
-    public LoginResponse loginGoogle(String authorizationCode) {
+    public UserResponse loginGoogle(String authorizationCode) {
         String accessToken = googleClient.requestAccessToken(authorizationCode);
         GoogleInfoResponse info = googleClient.requestGoogleInfo(accessToken);
         return loginCommon(info);
     }
 
-    private <T extends UserInfo> LoginResponse loginCommon(T info) {
-        Long userId = findOrCreateMember(info);
-        return LoginResponse.builder()
-                .id(userId)
-                .name(info.getName())
-                .email(info.getEmail())
-                .accessToken(jwtAuthenticationProvider.createAccessToken(userId, info.getEmail()))
-                .refreshToken(jwtAuthenticationProvider.createRefreshToken(userId, info.getEmail()))
+    private <T extends UserInfo> UserResponse loginCommon(T info) {
+        User user = findOrCreateMember(info);
+        String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
+        String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
+
+        // Refresh Token 갱신
+        user.setRefreshToken(newRefreshToken);
+        userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(user.getUserId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .build();
     }
 
-    private <T extends UserInfo> Long findOrCreateMember(T info) {
+    private <T extends UserInfo> User findOrCreateMember(T info) {
         return userRepository.findByEmail(info.getEmail())
-                .map(User::getUserId)
                 .orElseGet(() -> newMember(info));
     }
 
-    private <T extends UserInfo> Long newMember(T info) {
+    private <T extends UserInfo> User newMember(T info) {
+        String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
         User user = User.builder()
                 .email(info.getEmail())
                 .name(info.getName())
+                .refreshToken(refreshToken)
                 .build();
         userRepository.save(user);
-        return user.getUserId();
+        return user;
+    }
+
+    // 로그아웃 메서드
+    public void logout(HttpServletRequest request) {
+        String accessToken = jwtAuthenticationProvider.extract(request);
+        Claims claims = jwtAuthenticationProvider.verify(accessToken);
+        String email = claims.getSubject();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.invalidateRefreshToken();
+        userRepository.save(user);
+    }
+
+    // 탈퇴 메서드
+    public void withdraw(HttpServletRequest request) {
+        String accessToken = jwtAuthenticationProvider.extract(request);
+        Claims claims = jwtAuthenticationProvider.verify(accessToken);
+        String email = claims.getSubject();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        userRepository.delete(user);
     }
 }
