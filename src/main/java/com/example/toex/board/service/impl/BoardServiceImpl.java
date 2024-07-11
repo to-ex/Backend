@@ -2,12 +2,16 @@ package com.example.toex.board.service.impl;
 
 import com.example.toex.board.domain.Board;
 import com.example.toex.board.domain.BoardImg;
+import com.example.toex.board.domain.Likes;
+import com.example.toex.board.domain.Scraps;
 import com.example.toex.board.domain.enums.BoardCategory;
 import com.example.toex.board.domain.enums.CountryTag;
 import com.example.toex.board.dto.req.BoardReq;
 import com.example.toex.board.dto.res.BoardDetailRes;
 import com.example.toex.board.dto.res.BoardRes;
 import com.example.toex.board.repository.BoardRepository;
+import com.example.toex.board.repository.LikesRepository;
+import com.example.toex.board.repository.ScrapsRepository;
 import com.example.toex.board.service.BoardService;
 import com.example.toex.common.exception.CustomException;
 import com.example.toex.common.exception.enums.ErrorCode;
@@ -25,12 +29,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final LikesRepository likesRepository;
+    private final ScrapsRepository scrapsRepository;
     private final FileService fileService;
 
     @Transactional
@@ -124,6 +131,34 @@ public class BoardServiceImpl implements BoardService {
         board.delete();
 
         return boardRepository.save(board).getBoardId();
+    }
+
+    @Override
+    public void toggleLike(Long boardId, CustomUserDetail userDetail) {
+//        Long userId = getUserId(userDetail, true);
+        Long userId = 1L;
+        Optional<Likes> likesOptional = likesRepository.findByUserIdAndBoardId(userId, boardId);
+        if (likesOptional.isEmpty()) {
+            likesRepository.save(Likes.builder().userId(userId).boardId(boardId).build());
+        } else {
+            Likes likes = likesOptional.get();
+            likes.update();
+            likesRepository.save(likes);
+        }
+    }
+
+    @Override
+    public void toggleScrap(Long boardId, CustomUserDetail userDetail) {
+        //        Long userId = getUserId(userDetail, true);
+        Long userId = 1L;
+        Optional<Scraps> scrapsOptional = scrapsRepository.findByUserIdAndBoardId(userId, boardId);
+        if (scrapsOptional.isEmpty()) {
+            scrapsRepository.save(Scraps.builder().userId(userId).boardId(boardId).build());
+        } else {
+            Scraps scraps = scrapsOptional.get();
+            scraps.update();
+            scrapsRepository.save(scraps);
+        }
     }
 
     public Long getUserId(CustomUserDetail userDetail, Boolean authcheck) {

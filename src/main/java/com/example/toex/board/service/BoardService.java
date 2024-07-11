@@ -20,4 +20,6 @@ public interface BoardService {
     Page<BoardRes> getMyScraps(Pageable pageable, CustomUserDetail userDetail);
     Long updateBoard(Long boardId, BoardReq boardReq, CustomUserDetail userDetail);
     Long deleteBoard(Long boardId, CustomUserDetail userDetail);
+    void toggleLike(Long boardId, CustomUserDetail userDetail);
+    void toggleScrap(Long boardId, CustomUserDetail userDetail);
 }

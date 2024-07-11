@@ -9,7 +9,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -87,6 +86,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     public List<BoardRes> selectMyScraps(Long userId) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(scraps.userId.eq(userId));
+        builder.and(scraps.delYn.eq("N"));
         builder.and(board.delYn.eq("N"));
 
         return queryFactory.from(board)
@@ -109,6 +109,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     public List<BoardDetailRes.CommentRes> selectCommentList(Long boardId) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(comment.board.boardId.eq(boardId));
+        builder.and(comment.delYn.eq("N"));
 
         return queryFactory.select(Projections.constructor(
                         BoardDetailRes.CommentRes.class,
@@ -122,12 +123,9 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     }
 
     public Expression<Long> getLikesCountSubquery() {
-        JPQLQuery<Long> where = JPAExpressions.select(likes.count())
-                .from(likes)
-                .where(likes.boardId.eq(board.boardId));
         return JPAExpressions.select(likes.count())
                 .from(likes)
-                .where(likes.boardId.eq(board.boardId));
+                .where(likes.boardId.eq(board.boardId).and(likes.delYn.eq("N")));
     }
 
     public Expression<Long> getIsLikedSubquery(Long userId) {
@@ -137,7 +135,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
         return JPAExpressions.select(likes.likeId)
                 .from(likes)
-                .where(likes.boardId.eq(board.boardId).and(likes.userId.eq(userId)));
+                .where(likes.boardId.eq(board.boardId).and(likes.userId.eq(userId)).and(likes.delYn.eq("N")));
     }
 
     public Expression<Long> getIsScrappedSubquery(Long userId) {
@@ -147,6 +145,6 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
         return JPAExpressions.select(scraps.scrapId)
                 .from(scraps)
-                .where(scraps.boardId.eq(scraps.boardId).and(scraps.userId.eq(userId)));
+                .where(scraps.boardId.eq(scraps.boardId).and(scraps.userId.eq(userId)).and(scraps.delYn.eq("N")));
     }
 }

@@ -30,7 +30,7 @@ public class BoardController {
     }
 
     @GetMapping("/board")
-    public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getBoardList(@PageableDefault Pageable pageable,
                                           @RequestParam(value = "keyword", required = false) String keyword,
                                           @RequestParam(value = "boardCategory" ,required = false) BoardCategory boardCategory,
                                           @RequestParam(value = "countryTag" ,required = false) CountryTag countryTag,
@@ -39,20 +39,20 @@ public class BoardController {
     }
 
     @GetMapping("/board/{boardId}")
-    public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getBoardList(@PageableDefault Pageable pageable,
                                           @PathVariable Long boardId,
                                           @AuthenticationPrincipal CustomUserDetail userDetail){
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardDetail(pageable, boardId, userDetail)));
     }
 
     @GetMapping("/board/mypost")
-    public ResponseEntity<?> getMyPosts(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getMyPosts(@PageableDefault Pageable pageable,
                                           @AuthenticationPrincipal CustomUserDetail userDetail){
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getMyPosts(pageable, userDetail)));
     }
 
     @GetMapping("/board/scrap")
-    public ResponseEntity<?> getMyScraps(@PageableDefault(page = 0, size = 10) Pageable pageable,
+    public ResponseEntity<?> getMyScraps(@PageableDefault Pageable pageable,
                                         @AuthenticationPrincipal CustomUserDetail userDetail){
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getMyScraps(pageable, userDetail)));
     }
@@ -69,4 +69,15 @@ public class BoardController {
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.deleteBoard(boardId, userDetail)));
     }
 
+    @PostMapping("/like/{boardId}")
+    public ResponseEntity<?> toggleLike(@PathVariable Long boardId, @AuthenticationPrincipal CustomUserDetail userDetail) {
+        boardService.toggleLike(boardId, userDetail);
+        return ResponseEntity.ok(BasicResponse.ofSuccess(null));
+    }
+
+    @PostMapping("/scrap/{boardId}")
+    public ResponseEntity<?> toggleScrap(@PathVariable Long boardId, @AuthenticationPrincipal CustomUserDetail userDetail) {
+        boardService.toggleScrap(boardId, userDetail);
+        return ResponseEntity.ok(BasicResponse.ofSuccess(null));
+    }
 }

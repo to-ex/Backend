@@ -23,4 +23,12 @@ public class Scraps extends BaseEntity {
         this.userId = userId;
         this.boardId = boardId;
     }
+
+    public void update() {
+        if (this.delYn.equals("N")) {
+            this.delYn = "Y";
+        } else {
+            this.delYn = "N";
+        }
+    }
 }
