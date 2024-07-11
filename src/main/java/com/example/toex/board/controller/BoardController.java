@@ -35,6 +35,14 @@ public class BoardController {
                                           @RequestParam(value = "boardCategory" ,required = false) BoardCategory boardCategory,
                                           @RequestParam(value = "countryTag" ,required = false) CountryTag countryTag,
                                          @AuthenticationPrincipal CustomUserDetail userDetail){
-        return ResponseEntity.ok(BasicResponse.ofCreateSuccess(boardService.getBoardList(pageable, keyword, boardCategory, countryTag, userDetail)));
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardList(pageable, keyword, boardCategory, countryTag, userDetail)));
     }
+
+    @GetMapping("/board/{boardId}")
+    public ResponseEntity<?> getBoardList(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                          @PathVariable Long boardId,
+                                          @AuthenticationPrincipal CustomUserDetail userDetail){
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardDetail(pageable, boardId, userDetail)));
+    }
+
 }

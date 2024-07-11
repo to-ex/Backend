@@ -5,6 +5,7 @@ import com.example.toex.board.domain.BoardImg;
 import com.example.toex.board.domain.enums.BoardCategory;
 import com.example.toex.board.domain.enums.CountryTag;
 import com.example.toex.board.dto.req.BoardReq;
+import com.example.toex.board.dto.res.BoardDetailRes;
 import com.example.toex.board.dto.res.BoardRes;
 import com.example.toex.board.repository.BoardRepository;
 import com.example.toex.board.service.BoardService;
@@ -61,22 +62,39 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<BoardRes> getBoardList(Pageable pageable, String keyword, BoardCategory boardCategory, CountryTag countryTag, CustomUserDetail userDetail) {
-        Long userId = (long) 1;
+        Long userId = null;
         if (userDetail != null) {
             userId = userDetail.getUser().getUserId();
         }
 
         List<BoardRes> boardResList = boardRepository.selectBoardList(keyword, boardCategory, countryTag, userId);
 
-        int start = (int) pageable.getOffset();
+        return pageImplCustom(boardResList, pageable);
+    }
 
-        if (start >= boardResList.size()) {
-            return new PageImpl<>(Collections.emptyList(), pageable, boardResList.size());
+    @Override
+    public BoardDetailRes getBoardDetail(Pageable pageable, Long boardId, CustomUserDetail userDetail) {
+        Long userId = null;
+        if (userDetail != null) {
+            userId = userDetail.getUser().getUserId();
         }
 
-        int end = Math.min(start + pageable.getPageSize(), boardResList.size());
+        BoardDetailRes boardDetailRes = boardRepository.selectBoardDetail(boardId, userId);
+        List<BoardDetailRes.CommentRes> commentResList = boardRepository.selectCommentList(boardId);
+        boardDetailRes.setCommentList(pageImplCustom(commentResList, pageable));
 
-        return new PageImpl<>(boardResList.subList(start, end), pageable, boardResList.size());
+        return boardDetailRes;
+    }
 
+    public <T> Page<T> pageImplCustom(List<T> list, org.springframework.data.domain.Pageable pageable) {
+        int start = (int) pageable.getOffset();
+
+        if (start >= list.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, list.size());
+        }
+
+        int end = Math.min((start + pageable.getPageSize()), list.size());
+
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 }
