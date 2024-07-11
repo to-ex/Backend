@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class BoardRes {
+    private Long boardId;
     private String author;
     // TODO
     private String authorProfileImgUrl;
@@ -27,6 +28,7 @@ public class BoardRes {
 
     @Builder
     public BoardRes(Board board, User author, Long likes, int comments, Long likeId, Long scrapId) {
+        this.boardId = board.getBoardId();
         this.author = author.getName();
         this.title = board.getTitle();
         this.boardCategory = board.getBoardCategory();

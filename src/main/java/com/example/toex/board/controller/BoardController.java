@@ -45,6 +45,18 @@ public class BoardController {
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardDetail(pageable, boardId, userDetail)));
     }
 
+    @GetMapping("/board/mypost")
+    public ResponseEntity<?> getMyPosts(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                          @AuthenticationPrincipal CustomUserDetail userDetail){
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getMyPosts(pageable, userDetail)));
+    }
+
+    @GetMapping("/board/scrap")
+    public ResponseEntity<?> getMyScraps(@PageableDefault(page = 0, size = 10) Pageable pageable,
+                                        @AuthenticationPrincipal CustomUserDetail userDetail){
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getMyScraps(pageable, userDetail)));
+    }
+
     @PatchMapping("/board/{boardId}")
     public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
                                          @RequestBody BoardReq boardReq,

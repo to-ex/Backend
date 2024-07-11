@@ -36,13 +36,11 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     @Override
     public Long insertBoard(BoardReq boardReq, List<MultipartFile> images, CustomUserDetail userDetail) {
-        if (userDetail == null || userDetail.getUser() == null) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
+        Long userId = getUserId(userDetail, true);
 
         Board board = boardRepository.save(Board.builder()
                 .req(boardReq)
-                .userId(userDetail.getUser().getUserId())
+                .userId(userId)
                 .build());
 
         List<BoardImg> boardImgList = new ArrayList<>();
@@ -62,22 +60,16 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<BoardRes> getBoardList(Pageable pageable, String keyword, BoardCategory boardCategory, CountryTag countryTag, CustomUserDetail userDetail) {
-        Long userId = null;
-        if (userDetail != null) {
-            userId = userDetail.getUser().getUserId();
-        }
+        Long userId = getUserId(userDetail, false);
 
-        List<BoardRes> boardResList = boardRepository.selectBoardList(keyword, boardCategory, countryTag, userId);
+        List<BoardRes> boardResList = boardRepository.selectBoardList(keyword, boardCategory, countryTag, userId, false);
 
         return pageImplCustom(boardResList, pageable);
     }
 
     @Override
     public BoardDetailRes getBoardDetail(Pageable pageable, Long boardId, CustomUserDetail userDetail) {
-        Long userId = null;
-        if (userDetail != null) {
-            userId = userDetail.getUser().getUserId();
-        }
+        Long userId = getUserId(userDetail, false);
 
         BoardDetailRes boardDetailRes = boardRepository.selectBoardDetail(boardId, userId);
         if (boardDetailRes == null) {
@@ -88,6 +80,21 @@ public class BoardServiceImpl implements BoardService {
         boardDetailRes.setCommentList(pageImplCustom(commentResList, pageable));
 
         return boardDetailRes;
+    }
+
+    @Override
+    public Page<BoardRes> getMyPosts(Pageable pageable, CustomUserDetail userDetail) {
+//        Long userId = getUserId(userDetail, true);
+
+        List<BoardRes> boardResList = boardRepository.selectBoardList(null, null, null, 1L, true);
+        return pageImplCustom(boardResList, pageable);
+    }
+
+    @Override
+    public Page<BoardRes> getMyScraps(Pageable pageable, CustomUserDetail userDetail) {
+//        Long userId = getUserId(userDetail, true);
+        List<BoardRes> boardResList = boardRepository.selectMyScraps(1L);
+        return pageImplCustom(boardResList, pageable);
     }
 
     @Override
@@ -117,6 +124,16 @@ public class BoardServiceImpl implements BoardService {
         board.delete();
 
         return boardRepository.save(board).getBoardId();
+    }
+
+    public Long getUserId(CustomUserDetail userDetail, Boolean authcheck) {
+        if (userDetail == null || userDetail.getUser() == null) {
+            if (authcheck) {
+                throw new CustomException(ErrorCode.INVALID_TOKEN);
+            }
+            return null;
+        }
+        return userDetail.getUser().getUserId();
     }
 
     public <T> Page<T> pageImplCustom(List<T> list, org.springframework.data.domain.Pageable pageable) {

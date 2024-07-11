@@ -8,7 +8,8 @@ import com.example.toex.board.dto.res.BoardRes;
 import java.util.List;
 
 public interface BoardRepositoryCustom {
-    List<BoardRes> selectBoardList(String keyword, BoardCategory boardCategory, CountryTag countryTag, Long userId);
+    List<BoardRes> selectBoardList(String keyword, BoardCategory boardCategory, CountryTag countryTag, Long userId, Boolean mypost);
     BoardDetailRes selectBoardDetail(Long boardId, Long userId);
+    List<BoardRes> selectMyScraps(Long userId);
     List<BoardDetailRes.CommentRes> selectCommentList(Long boardId);
 }

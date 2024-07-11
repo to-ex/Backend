@@ -30,7 +30,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<BoardRes> selectBoardList(String keyword, BoardCategory boardCategory, CountryTag countryTag, Long userId) {
+    public List<BoardRes> selectBoardList(String keyword, BoardCategory boardCategory, CountryTag countryTag, Long userId, Boolean mypost) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -43,12 +43,14 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         if (countryTag != null) {
             builder.and(board.countryTag.eq(countryTag));
         }
+        if (mypost) {
+            builder.and(board.userId.eq(userId));
+        }
         builder.and(board.delYn.eq("N"));
 
         return queryFactory.from(board)
                 .where(builder)
-                .leftJoin(user)
-                .on(board.userId.eq(user.userId))
+                .leftJoin(user).on(board.userId.eq(user.userId))
                 .transform(groupBy(board.boardId)
                         .list(Projections.constructor(
                                 BoardRes.class,
@@ -79,6 +81,28 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .where(builder)
                 .leftJoin(user).on(board.userId.eq(user.userId))
                 .fetchOne();
+    }
+
+    @Override
+    public List<BoardRes> selectMyScraps(Long userId) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(scraps.userId.eq(userId));
+        builder.and(board.delYn.eq("N"));
+
+        return queryFactory.from(board)
+                .leftJoin(user).on(board.userId.eq(user.userId))
+                .leftJoin(scraps).on(board.boardId.eq(scraps.boardId))
+                .where(builder)
+                .transform(groupBy(board.boardId)
+                        .list(Projections.constructor(
+                                BoardRes.class,
+                                board,
+                                user,
+                                this.getLikesCountSubquery(),
+                                board.comments.size(),
+                                this.getIsLikedSubquery(userId),
+                                this.getIsScrappedSubquery(userId)
+                        )));
     }
 
     @Override
