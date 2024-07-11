@@ -52,3 +52,12 @@ cloud:
       auto: false
     bucket: ${S3_BUCKET_NAME}
     domain: ${S3_DOMAIN}
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+        orm:
+          jdbc:
+            bind: trace
