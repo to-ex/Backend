@@ -80,10 +80,43 @@ public class BoardServiceImpl implements BoardService {
         }
 
         BoardDetailRes boardDetailRes = boardRepository.selectBoardDetail(boardId, userId);
+        if (boardDetailRes == null) {
+            throw new CustomException(ErrorCode.INVALID_BOARD);
+        }
+
         List<BoardDetailRes.CommentRes> commentResList = boardRepository.selectCommentList(boardId);
         boardDetailRes.setCommentList(pageImplCustom(commentResList, pageable));
 
         return boardDetailRes;
+    }
+
+    @Override
+    public Long updateBoard(Long boardId, BoardReq boardReq, CustomUserDetail userDetail) {
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BOARD));
+
+        if (userDetail == null || !board.getUserId().equals(userDetail.getUser().getUserId())) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        board.updateBoard(boardReq);
+
+        return boardRepository.save(board).getBoardId();
+    }
+
+    @Override
+    public Long deleteBoard(Long boardId, CustomUserDetail userDetail) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BOARD));
+
+        if (userDetail == null || !board.getUserId().equals(userDetail.getUser().getUserId())) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        board.delete();
+
+        return boardRepository.save(board).getBoardId();
     }
 
     public <T> Page<T> pageImplCustom(List<T> list, org.springframework.data.domain.Pageable pageable) {

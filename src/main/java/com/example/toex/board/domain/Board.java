@@ -53,4 +53,11 @@ public class Board extends BaseEntity {
     public void setBoardImgs(List<BoardImg> boardImgs) {
         boardImgs.forEach(boardImg -> boardImg.setBoard(this));
     }
+
+    public void updateBoard(BoardReq req) {
+        this.title = req.getTitle();
+        this.boardCategory = req.getBoardCategory();
+        this.countryTag = req.getCountryTag();
+        this.content = req.getContent();
+    }
 }

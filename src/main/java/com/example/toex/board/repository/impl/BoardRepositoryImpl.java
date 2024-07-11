@@ -65,6 +65,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     public BoardDetailRes selectBoardDetail(Long boardId, Long userId) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(board.boardId.eq(boardId));
+        builder.and(board.delYn.eq("N"));
 
         return queryFactory.select(Projections.constructor(
                         BoardDetailRes.class,

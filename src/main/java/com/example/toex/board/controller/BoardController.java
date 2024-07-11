@@ -45,4 +45,16 @@ public class BoardController {
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardDetail(pageable, boardId, userDetail)));
     }
 
+    @PatchMapping("/board/{boardId}")
+    public ResponseEntity<?> updateBoard(@PathVariable Long boardId,
+                                         @RequestBody BoardReq boardReq,
+                                         @AuthenticationPrincipal CustomUserDetail userDetail) {
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.updateBoard(boardId, boardReq, userDetail)));
+    }
+
+    @DeleteMapping("/board/{boardId}")
+    public ResponseEntity<?> updateBoard(@PathVariable Long boardId, @AuthenticationPrincipal CustomUserDetail userDetail) {
+        return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.deleteBoard(boardId, userDetail)));
+    }
+
 }

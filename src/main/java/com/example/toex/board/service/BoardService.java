@@ -16,4 +16,6 @@ public interface BoardService {
     Long insertBoard(BoardReq boardReq, List<MultipartFile> images, CustomUserDetail userDetail);
     Page<BoardRes> getBoardList(Pageable pageable, String keyword, BoardCategory boardCategory, CountryTag countryTag, CustomUserDetail userDetail);
     BoardDetailRes getBoardDetail(Pageable pageable, Long boardId, CustomUserDetail userDetail);
+    Long updateBoard(Long boardId, BoardReq boardReq, CustomUserDetail userDetail);
+    Long deleteBoard(Long boardId, CustomUserDetail userDetail);
 }
