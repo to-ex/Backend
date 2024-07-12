@@ -21,7 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
-            "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh"
+            "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh","/api/v1/engTest"
     };
 
     @Bean

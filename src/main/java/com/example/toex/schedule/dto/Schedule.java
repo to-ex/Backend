@@ -1,9 +1,7 @@
 package com.example.toex.schedule.dto;
 
 import jakarta.persistence.*;
-
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -38,5 +36,9 @@ public class Schedule {
 
     @Column(nullable = true)
     private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ScheduleType type;
 }
 

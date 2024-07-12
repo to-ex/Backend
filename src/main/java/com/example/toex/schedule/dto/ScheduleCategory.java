@@ -1,6 +1,7 @@
 package com.example.toex.schedule.dto;
 
-enum ScheduleCategory {
+public enum ScheduleCategory {
+
     VISA,
     TEST,
     ETC
