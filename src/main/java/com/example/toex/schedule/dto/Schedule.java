@@ -41,3 +41,4 @@ public class Schedule {
     @Column(nullable = false)
     private ScheduleType type;
 }
+
