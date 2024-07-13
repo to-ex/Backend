@@ -10,4 +10,6 @@ import lombok.Setter;
 public class UserInfoUpdateRequest {
     private String name;
     private String email;
+
+    private String useImage;
 }

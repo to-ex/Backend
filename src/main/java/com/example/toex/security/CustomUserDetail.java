@@ -3,9 +3,11 @@ package com.example.toex.security;
 import com.example.toex.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @AllArgsConstructor
 public class CustomUserDetail implements UserDetails {
@@ -16,9 +18,10 @@ public class CustomUserDetail implements UserDetails {
         return this.user;
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
@@ -28,8 +31,9 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public String getUsername() {
-        return "";
+        return user.getEmail();
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

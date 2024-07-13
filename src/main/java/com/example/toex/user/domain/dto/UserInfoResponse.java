@@ -11,10 +11,13 @@ public class UserInfoResponse {
     private Long userId;
     private String name;
     private String email;
+    private String userImage;
 
     public UserInfoResponse(User user) {
         this.userId = user.getUserId();
         this.name = user.getName();
         this.email = user.getEmail();
+        this.userImage = user.getUserImage();
+
     }
 }

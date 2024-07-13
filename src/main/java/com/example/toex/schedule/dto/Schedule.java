@@ -26,7 +26,7 @@ public class Schedule {
     private String content;
 
     @Column(nullable = false)
-    private Boolean isDone = false;
+    private Boolean isDone;
 
     @Column(nullable = false)
     private Long userId;

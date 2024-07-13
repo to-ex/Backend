@@ -23,6 +23,7 @@ public class UserController {
     @GetMapping("/myinfo")
     public UserInfoResponse getMyInfo() {
         Long userId = jwtAuthenticationProvider.getUserId();
+        System.out.println("userId = " + userId);
         return userService.getUserInfo(userId);
     }
 

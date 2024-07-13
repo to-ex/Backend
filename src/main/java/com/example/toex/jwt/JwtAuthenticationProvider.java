@@ -111,11 +111,14 @@ public class JwtAuthenticationProvider {
 
     public Claims verify(String token) {
         try {
-            return Jwts.parserBuilder()
+            log.info("Verifying token: {}", token);  // 토큰 로그 추가
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+            log.info("Token verified successfully, claims: {}", claims);  // 검증 성공 시 로그 추가
+            return claims;
         } catch (ExpiredJwtException e) {
             log.error("Token expired: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_TOKEN);
@@ -127,7 +130,8 @@ public class JwtAuthenticationProvider {
 
 
     public Authentication getAuthentication(String token) {
-        String email = verify(token).getSubject();
+        Claims claims = verify(token);
+        String email = claims.getSubject();
         log.info("Extracted email from token: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
