@@ -1,23 +1,23 @@
 package com.example.toex.board.service.impl;
 
-import com.example.toex.board.domain.Board;
-import com.example.toex.board.domain.BoardImg;
-import com.example.toex.board.domain.Likes;
-import com.example.toex.board.domain.Scraps;
+import com.example.toex.board.domain.*;
 import com.example.toex.board.domain.enums.BoardCategory;
 import com.example.toex.board.domain.enums.CountryTag;
 import com.example.toex.board.dto.req.BoardReq;
+import com.example.toex.board.dto.req.CommentReq;
 import com.example.toex.board.dto.res.BoardDetailRes;
 import com.example.toex.board.dto.res.BoardRes;
 import com.example.toex.board.repository.BoardRepository;
 import com.example.toex.board.repository.LikesRepository;
 import com.example.toex.board.repository.ScrapsRepository;
+import com.example.toex.board.repository.CommentRepository;
 import com.example.toex.board.service.BoardService;
 import com.example.toex.common.exception.CustomException;
 import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.common.file.FileService;
 import com.example.toex.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
@@ -38,6 +39,7 @@ public class BoardServiceImpl implements BoardService {
     private final BoardRepository boardRepository;
     private final LikesRepository likesRepository;
     private final ScrapsRepository scrapsRepository;
+    private final CommentRepository commentRepository;
     private final FileService fileService;
 
     @Transactional
@@ -91,7 +93,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<BoardRes> getMyPosts(Pageable pageable, CustomUserDetail userDetail) {
-//        Long userId = getUserId(userDetail, true);
+    //Long userId = getUserId(userDetail, true);
 
         List<BoardRes> boardResList = boardRepository.selectBoardList(null, null, null, 1L, true);
         return pageImplCustom(boardResList, pageable);
@@ -117,6 +119,22 @@ public class BoardServiceImpl implements BoardService {
         board.updateBoard(boardReq);
 
         return boardRepository.save(board).getBoardId();
+    }
+
+    @Override //댓글 수정
+    public Long updateComment(Long commentId, CommentReq commentReq, CustomUserDetail userDetail) {
+        log.info("Updating comment with ID: {}", commentId);
+        log.info("User ID from token: {}", userDetail.getUser().getUserId());
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BOARD));
+
+        if (!comment.getCommenterId().equals(userDetail.getUser().getUserId())) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        comment.updateComment(commentReq);
+
+        return commentRepository.save(comment).getCommentId();
     }
 
     @Override
@@ -160,6 +178,36 @@ public class BoardServiceImpl implements BoardService {
             scrapsRepository.save(scraps);
         }
     }
+
+    @Override//댓글 등록
+    public Long createComment(Long boardId, CommentReq commentReq, CustomUserDetail userDetail) {
+        Long userId = getUserId(userDetail, true);
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new IllegalArgumentException("Board not found"));
+
+        Comment comment = Comment.builder()
+                .req(commentReq)
+                .userId(userId)
+                .board(board)
+                .build();
+
+        Comment savedComment = commentRepository.save(comment);
+        return savedComment.getCommentId();
+    }
+
+    @Override //댓글 삭제
+    public void deleteComment(Long commentId, CustomUserDetail userDetail) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+
+        if (!comment.getCommenterId().equals(getUserId(userDetail, true))) {
+            throw new IllegalArgumentException("User not authorized to delete this comment");
+        }
+
+        commentRepository.delete(comment);
+    }
+
 
     public Long getUserId(CustomUserDetail userDetail, Boolean authcheck) {
         if (userDetail == null || userDetail.getUser() == null) {

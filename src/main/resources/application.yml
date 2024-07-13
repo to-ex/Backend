@@ -23,15 +23,11 @@ logging:
             sql:
               BasicBinder: TRACE
 
-# JWT ?? ??
 jwt:
   secret: ${JWT_SECRET}
   access-token-time: ${ACCESS_TOKEN_TIME}
   refresh-token-time: ${REFRESH_TOKEN_TIME}
 
-
-# (???? x => ????? ??)
-# ???, ??, ???? client id//
 security:
   oauth2:
     client:
@@ -65,12 +61,3 @@ cloud:
       auto: false
     bucket: ${S3_BUCKET_NAME}
     domain: ${S3_DOMAIN}
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: debug
-        orm:
-          jdbc:
-            bind: trace
