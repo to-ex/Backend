@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Slf4j
@@ -20,8 +20,9 @@ public class FileService {
     private String bucket;
     private final AmazonS3Client s3Client;
 
-    public String uploadFile(MultipartFile multipartFile) throws IOException {
-        String fileName = getUuidFileName();
+
+    public String uploadFile(MultipartFile multipartFile, String directory) throws IOException {
+        String fileName = directory + "/" + getUuidFileName();
 
         try {
             ObjectMetadata metadata = new ObjectMetadata();

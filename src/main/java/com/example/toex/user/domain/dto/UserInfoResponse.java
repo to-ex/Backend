@@ -1,9 +1,11 @@
 package com.example.toex.user.domain.dto;
 
 
+import com.example.toex.common.message.BasicResponse;
 import com.example.toex.user.User;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter

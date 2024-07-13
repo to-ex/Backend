@@ -35,9 +35,10 @@ public class User {
     }
 
     // 사용자 정보 업데이트 메서드
-    public void update(UserInfoUpdateRequest userInfoUpdateRequest) {
+    public void update(UserInfoUpdateRequest userInfoUpdateRequest,String image) {
         this.name = userInfoUpdateRequest.getName();
         this.email = userInfoUpdateRequest.getEmail();
+        this.userImage = image;
     }
 
 
