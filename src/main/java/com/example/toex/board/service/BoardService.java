@@ -3,6 +3,7 @@ package com.example.toex.board.service;
 import com.example.toex.board.domain.enums.BoardCategory;
 import com.example.toex.board.domain.enums.CountryTag;
 import com.example.toex.board.dto.req.BoardReq;
+import com.example.toex.board.dto.req.CommentReq;
 import com.example.toex.board.dto.res.BoardDetailRes;
 import com.example.toex.board.dto.res.BoardRes;
 import com.example.toex.security.CustomUserDetail;
@@ -22,4 +23,7 @@ public interface BoardService {
     Long deleteBoard(Long boardId, CustomUserDetail userDetail);
     void toggleLike(Long boardId, CustomUserDetail userDetail);
     void toggleScrap(Long boardId, CustomUserDetail userDetail);
+    Long createComment(Long boardId, CommentReq commentReq, CustomUserDetail userDetail); //commentID 반환
+    void deleteComment(Long commentId, CustomUserDetail userDetail);
+    Long updateComment(Long commentId, CommentReq commentReq, CustomUserDetail userDetail);
 }

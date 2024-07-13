@@ -51,7 +51,6 @@ public class JwtAuthenticationProvider {
     public void initialize() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
-
     public String extract(HttpServletRequest request) {
         String authorization = request.getHeader(HEADER_NAME);
         if (authorization != null && authorization.toLowerCase().startsWith(SCHEME.toLowerCase())) {

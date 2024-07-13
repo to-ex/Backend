@@ -22,18 +22,12 @@ logging:
           descriptor:
             sql:
               BasicBinder: TRACE
-      springframework:
-        security: DEBUG
 
-# JWT ?? ??
 jwt:
   secret: ${JWT_SECRET}
   access-token-time: ${ACCESS_TOKEN_TIME}
   refresh-token-time: ${REFRESH_TOKEN_TIME}
 
-
-# (???? x => ????? ??)
-# ???, ??, ???? client id//
 security:
   oauth2:
     client:
