@@ -1,6 +1,7 @@
 package com.example.toex.user.controller;
 
 import com.example.toex.common.file.FileService;
+import com.example.toex.common.message.BasicResponse;
 import com.example.toex.security.CustomUserDetail;
 import com.example.toex.user.domain.dto.UserInfoResponse;
 import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
@@ -30,28 +31,30 @@ public class UserController {
 
     // 내 정보관리 페이지 조회
     @GetMapping
-    public UserInfoResponse getMyInfo() {
+    public ResponseEntity<BasicResponse<UserInfoResponse>> getMyInfo() {
         Long userId = jwtAuthenticationProvider.getUserId();
         System.out.println("userId = " + userId);
-        return userService.getUserInfo(userId);
+        UserInfoResponse userInfoResponse = userService.getUserInfo(userId);
+        return ResponseEntity.ok(BasicResponse.ofSuccess(userInfoResponse));
     }
+
 
     // 내 정보관리 페이지 수정
     @PatchMapping
-    public UserInfoResponse updateMyInfo(@RequestPart(value = "name") String name,
+    public ResponseEntity<BasicResponse<UserInfoResponse>> updateMyInfo(@RequestPart(value = "name") String name,
                                          @RequestPart(value = "email") String email,
                                          @RequestPart(value = "image", required = false) MultipartFile image,
                                          @AuthenticationPrincipal CustomUserDetail userDetail) throws IOException {
         UserInfoUpdateRequest userInfoUpdateRequest = new UserInfoUpdateRequest(name, email);
-
-        return userService.updateUserInfo(userInfoUpdateRequest, image, userDetail);
+        UserInfoResponse updatedUserInfo = userService.updateUserInfo(userInfoUpdateRequest, image, userDetail);
+        return ResponseEntity.ok(BasicResponse.ofSuccess(updatedUserInfo));
     }
 
     //닉네임 중복 확인
     @GetMapping("/check-nickname")
-    public ResponseEntity checkNicknameDuplicate(@RequestParam String newName) {
+    public ResponseEntity<BasicResponse<Boolean>>  checkNicknameDuplicate(@RequestParam String newName) {
         boolean isDuplicate = userService.isNicknameDuplicate(newName);
-        return ResponseEntity.ok(isDuplicate);
+        return ResponseEntity.ok(BasicResponse.ofSuccess(isDuplicate));
     }
-
 }
+
