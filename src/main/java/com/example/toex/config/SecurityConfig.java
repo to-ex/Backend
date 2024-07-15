@@ -4,12 +4,14 @@ import com.example.toex.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,8 +23,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
+
+
             "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh",
             "/api/v1/engTest", "/api/v1/board", "/api/v1/board/**"
+
     };
 
     @Bean
@@ -31,13 +36,16 @@ public class SecurityConfig {
                 .httpBasic(httpSecurity -> httpSecurity.disable())
                 .csrf(httpSecurity -> httpSecurity.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션을 사용 하지 않기 때문에 STATELESS로 설정
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
+                                .requestMatchers("/api/v1/user/myinfo").hasAuthority("ROLE_USER")
                                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .anonymous(anonymous -> anonymous.disable());
+
         return http.build();
     }
 

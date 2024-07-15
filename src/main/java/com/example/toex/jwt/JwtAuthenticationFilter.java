@@ -28,14 +28,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final String[] EXCLUDE_URLS = {
-            "/api/v1/auth/login/**"
+            "/api/v1/auth/login/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api/v1/engTest",
+            "/api/v1/auth/user/refresh",
+            "/error" // 추가
     };
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String requestUri = request.getRequestURI();
 
-        // 특정 엔드포인트는 필터링 제외
         for (String excludeUrl : EXCLUDE_URLS) {
             if (pathMatcher.match(excludeUrl, requestUri)) {
                 filterChain.doFilter(request, response);
@@ -52,29 +56,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             if (accessToken != null) {
-                // Access Token이 있는 경우
+                log.info("Attempting to verify Access Token");
                 jwtAuthenticationProvider.verify(accessToken);
                 verifyTokenAndSetAuthentication(accessToken);
             } else if (refreshToken != null && requestUri.equals("/api/v1/auth/user/refresh")) {
-                // Access Token이 없고 Refresh Token만 있는 경우 (토큰 갱신 요청)
+                log.info("Attempting to verify Refresh Token");
                 jwtAuthenticationProvider.verifyRefreshToken(refreshToken);
                 String newAccessToken = jwtAuthenticationProvider.regenerateAccessToken(refreshToken);
                 response.setHeader("AccessToken", newAccessToken);
                 verifyTokenAndSetAuthentication(newAccessToken);
             } else {
-                // Access Token과 Refresh Token 모두 없는 경우 -> 에러 발생, 재로그인 요구
+                log.warn("No Access Token or Refresh Token provided, throwing exception");
                 throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            log.info("SecurityContextHolder before filterChain.doFilter: {}", auth);
+
             filterChain.doFilter(request, response);
+
+            auth = SecurityContextHolder.getContext().getAuthentication();
+            log.info("SecurityContextHolder after filterChain.doFilter: {}", auth);
         } catch (CustomException e) {
-            log.error(e.getMessage());
+            log.error("CustomException: {}", e.getMessage());
             ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
             this.responseSend(response, errorResponse);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
+            log.error("Exception: {}", e.getMessage(), e);
             ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getClass().getName(), e.getMessage());
             this.responseSend(response, errorResponse);
+        }
+    }
+
+    private void verifyTokenAndSetAuthentication(String token) {
+        Authentication authentication = jwtAuthenticationProvider.getAuthentication(token);
+        if (authentication != null) {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("Authentication set for user: {}", authentication.getName());
+            log.info("SecurityContextHolder contains: {}", SecurityContextHolder.getContext().getAuthentication());
+        } else {
+            log.warn("Failed to set authentication for token: {}", token);
         }
     }
 
@@ -86,12 +107,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return response;
     }
 
-    private void verifyTokenAndSetAuthentication(String token) {
-        Authentication authentication = jwtAuthenticationProvider.getAuthentication(token);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    public String convertObjectToJson(Object object) throws JsonProcessingException {
+    private String convertObjectToJson(Object object) throws JsonProcessingException {
         if (object == null) {
             return null;
         }

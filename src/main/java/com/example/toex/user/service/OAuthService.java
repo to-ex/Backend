@@ -25,6 +25,8 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
+    private static final String DEFAULT_USER_IMAGE_URL = "https://toex-file.s3.ap-northeast-2.amazonaws.com/userImages/default+profile.png";
+
     public UserResponse loginKakao(String authorizationCode) {
         String accessToken = kakaoClient.requestAccessToken(authorizationCode);
         KakaoInfoResponse info = kakaoClient.requestKakaoInfo(accessToken);
@@ -48,6 +50,8 @@ public class OAuthService {
         String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
         String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
 
+
+
         // Refresh Token 갱신
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
@@ -58,6 +62,7 @@ public class OAuthService {
                 .email(user.getEmail())
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
+                .userImage(user.getUserImage())
                 .build();
     }
 
@@ -68,10 +73,12 @@ public class OAuthService {
 
     private <T extends UserInfo> User newMember(T info) {
         String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
+
         User user = User.builder()
                 .email(info.getEmail())
                 .name(info.getName())
                 .refreshToken(refreshToken)
+                .userImage(DEFAULT_USER_IMAGE_URL)
                 .build();
         userRepository.save(user);
         return user;

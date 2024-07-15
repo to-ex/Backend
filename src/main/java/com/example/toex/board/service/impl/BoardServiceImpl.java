@@ -55,7 +55,7 @@ public class BoardServiceImpl implements BoardService {
         List<BoardImg> boardImgList = new ArrayList<>();
         images.forEach(image -> {
             try {
-                String filePath = fileService.uploadFile(image);
+                String filePath = fileService.uploadFile(image,"boardImages");
                 boardImgList.add(BoardImg.builder().imgUrl(filePath).build());
             } catch (IOException e) {
                 throw new RuntimeException(e);

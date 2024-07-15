@@ -23,19 +23,22 @@ public class User {
     private String email;
     private String name;
     private String refreshToken;
+    private String userImage;
 
     @Builder
-    public User(Long userId, String email, String name, String refreshToken) {
+    public User(Long userId, String email, String name, String refreshToken,String userImage) {
         this.userId = userId;
         this.email = email;
         this.name = name;
         this.refreshToken = refreshToken;
+        this.userImage = userImage;
     }
 
     // 사용자 정보 업데이트 메서드
-    public void update(UserInfoUpdateRequest userInfoUpdateRequest) {
+    public void update(UserInfoUpdateRequest userInfoUpdateRequest,String image) {
         this.name = userInfoUpdateRequest.getName();
         this.email = userInfoUpdateRequest.getEmail();
+        this.userImage = image;
     }
 
 

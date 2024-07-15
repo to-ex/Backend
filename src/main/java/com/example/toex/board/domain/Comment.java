@@ -1,9 +1,7 @@
 package com.example.toex.board.domain;
 
-import com.example.toex.board.dto.req.BoardReq;
 import com.example.toex.board.dto.req.CommentReq;
 import com.example.toex.common.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
