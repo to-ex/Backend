@@ -1,9 +1,9 @@
 package com.example.toex.engTest.service;
 
-import com.example.toex.engTest.dto.EngTest;
-import com.example.toex.engTest.dto.IeltsTest;
-import com.example.toex.engTest.dto.ToeflTest;
-import com.example.toex.engTest.dto.enums.*;
+import com.example.toex.engTest.domain.enums.TestArea;
+import com.example.toex.engTest.domain.enums.TestCategory;
+import com.example.toex.engTest.domain.enums.TestType;
+import com.example.toex.engTest.domain.EngTest;
 import com.example.toex.engTest.repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,7 @@
 package com.example.toex.engTest.dto;
 
-import com.example.toex.engTest.dto.enums.TestCategory;
-import com.example.toex.engTest.dto.enums.ToeflArea;
-import com.example.toex.engTest.dto.enums.ToeflType;
+import com.example.toex.engTest.domain.enums.ToeflArea;
+import com.example.toex.engTest.domain.enums.ToeflType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "toefl_test")
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

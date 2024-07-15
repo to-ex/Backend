@@ -1,6 +1,8 @@
-package com.example.toex.engTest.dto;
+package com.example.toex.engTest.domain;
 
-import com.example.toex.engTest.dto.enums.*;
+import com.example.toex.engTest.domain.enums.TestArea;
+import com.example.toex.engTest.domain.enums.TestCategory;
+import com.example.toex.engTest.domain.enums.TestType;
 import jakarta.persistence.*;
 import lombok.*;
 

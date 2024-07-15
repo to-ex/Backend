@@ -1,8 +1,9 @@
 package com.example.toex.engTest.controller;
 
-import com.example.toex.engTest.dto.EngTest;
-import com.example.toex.engTest.dto.enums.*;
-
+import com.example.toex.engTest.domain.enums.TestArea;
+import com.example.toex.engTest.domain.enums.TestCategory;
+import com.example.toex.engTest.domain.enums.TestType;
+import com.example.toex.engTest.domain.EngTest;
 import com.example.toex.engTest.service.EngTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;

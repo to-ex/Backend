@@ -1,4 +1,4 @@
-package com.example.toex.schedule.dto;
+package com.example.toex.schedule.domain.enums;
 
 public enum ScheduleType {
     CALENDAR,

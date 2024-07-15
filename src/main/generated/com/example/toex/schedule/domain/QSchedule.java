@@ -1,4 +1,4 @@
-package com.example.toex.schedule.dto;
+package com.example.toex.schedule.domain;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -15,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QSchedule extends EntityPathBase<Schedule> {
 
-    private static final long serialVersionUID = 56178926L;
+    private static final long serialVersionUID = 133384345L;
 
     public static final QSchedule schedule = new QSchedule("schedule");
 
@@ -25,13 +25,13 @@ public class QSchedule extends EntityPathBase<Schedule> {
 
     public final BooleanPath isDone = createBoolean("isDone");
 
-    public final EnumPath<ScheduleCategory> scheduleCategory = createEnum("scheduleCategory", ScheduleCategory.class);
+    public final EnumPath<com.example.toex.schedule.domain.enums.ScheduleCategory> scheduleCategory = createEnum("scheduleCategory", com.example.toex.schedule.domain.enums.ScheduleCategory.class);
 
     public final NumberPath<Long> scheduleId = createNumber("scheduleId", Long.class);
 
     public final DatePath<java.time.LocalDate> startDate = createDate("startDate", java.time.LocalDate.class);
 
-    public final EnumPath<ScheduleType> type = createEnum("type", ScheduleType.class);
+    public final EnumPath<com.example.toex.schedule.domain.enums.ScheduleType> type = createEnum("type", com.example.toex.schedule.domain.enums.ScheduleType.class);
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
 

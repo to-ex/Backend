@@ -1,5 +1,7 @@
-package com.example.toex.schedule.dto;
+package com.example.toex.schedule.domain;
 
+import com.example.toex.schedule.domain.enums.ScheduleCategory;
+import com.example.toex.schedule.domain.enums.ScheduleType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;

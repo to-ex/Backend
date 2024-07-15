@@ -1,7 +1,6 @@
 package com.example.toex.engTest.repository;
 
-import com.example.toex.engTest.dto.EngTest;
-import com.example.toex.engTest.dto.enums.*;
+import com.example.toex.engTest.domain.EngTest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
