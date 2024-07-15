@@ -91,16 +91,16 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<BoardRes> getMyPosts(Pageable pageable, CustomUserDetail userDetail) {
-//        Long userId = getUserId(userDetail, true);
+        Long userId = getUserId(userDetail, true);
 
-        List<BoardRes> boardResList = boardRepository.selectBoardList(null, null, null, 1L, true);
+        List<BoardRes> boardResList = boardRepository.selectBoardList(null, null, null, userId, true);
         return pageImplCustom(boardResList, pageable);
     }
 
     @Override
     public Page<BoardRes> getMyScraps(Pageable pageable, CustomUserDetail userDetail) {
-//        Long userId = getUserId(userDetail, true);
-        List<BoardRes> boardResList = boardRepository.selectMyScraps(1L);
+        Long userId = getUserId(userDetail, true);
+        List<BoardRes> boardResList = boardRepository.selectMyScraps(userId);
         return pageImplCustom(boardResList, pageable);
     }
 
@@ -135,8 +135,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public void toggleLike(Long boardId, CustomUserDetail userDetail) {
-//        Long userId = getUserId(userDetail, true);
-        Long userId = 1L;
+        Long userId = getUserId(userDetail, true);
         Optional<Likes> likesOptional = likesRepository.findByUserIdAndBoardId(userId, boardId);
         if (likesOptional.isEmpty()) {
             likesRepository.save(Likes.builder().userId(userId).boardId(boardId).build());
@@ -149,8 +148,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public void toggleScrap(Long boardId, CustomUserDetail userDetail) {
-        //        Long userId = getUserId(userDetail, true);
-        Long userId = 1L;
+        Long userId = getUserId(userDetail, true);
         Optional<Scraps> scrapsOptional = scrapsRepository.findByUserIdAndBoardId(userId, boardId);
         if (scrapsOptional.isEmpty()) {
             scrapsRepository.save(Scraps.builder().userId(userId).boardId(boardId).build());
