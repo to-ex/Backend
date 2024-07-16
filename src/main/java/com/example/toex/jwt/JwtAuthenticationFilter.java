@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -26,26 +25,10 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private static final String[] EXCLUDE_URLS = {
-            "/api/v1/auth/login/**",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/api/v1/engTest",
-            "/api/v1/auth/user/refresh",
-            "/error" // 추가
-    };
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         String requestUri = request.getRequestURI();
-
-        for (String excludeUrl : EXCLUDE_URLS) {
-            if (pathMatcher.match(excludeUrl, requestUri)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-        }
 
         String accessToken = jwtAuthenticationProvider.extract(request);
         String refreshToken = request.getHeader("RefreshToken");
@@ -66,10 +49,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.setHeader("AccessToken", newAccessToken);
                 verifyTokenAndSetAuthentication(newAccessToken);
             } else {
-                log.warn("No Access Token or Refresh Token provided, throwing exception");
-                throw new CustomException(ErrorCode.INVALID_TOKEN);
+                log.warn("No Access Token or Refresh Token provided");
+                // 다음 필터로 요청을 넘기는 부분 (permitAll() 설정이 적용될 수 있도록)
+                filterChain.doFilter(request, response);
+                return;
             }
-
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             log.info("SecurityContextHolder before filterChain.doFilter: {}", auth);
 
@@ -80,11 +64,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (CustomException e) {
             log.error("CustomException: {}", e.getMessage());
             ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
-            this.responseSend(response, errorResponse);
+            try {
+                responseSend(response, errorResponse);
+            } catch (IOException ioException) {
+                log.error("IOException while sending error response: {}", ioException.getMessage());
+            }
         } catch (Exception e) {
             log.error("Exception: {}", e.getMessage(), e);
             ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getClass().getName(), e.getMessage());
-            this.responseSend(response, errorResponse);
+            try {
+                responseSend(response, errorResponse);
+            } catch (IOException ioException) {
+                log.error("IOException while sending error response: {}", ioException.getMessage());
+            }
         }
     }
 
@@ -99,12 +91,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private HttpServletResponse responseSend(HttpServletResponse response, ErrorResponse errorResponse) throws IOException {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    private void responseSend(HttpServletResponse response, ErrorResponse errorResponse) throws IOException {
+        response.setStatus(errorResponse.getStatus());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(convertObjectToJson(errorResponse));
-        return response;
     }
 
     private String convertObjectToJson(Object object) throws JsonProcessingException {
