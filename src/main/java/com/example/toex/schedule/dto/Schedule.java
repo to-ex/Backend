@@ -22,8 +22,9 @@ public class Schedule {
     @Column(nullable = false)
     private ScheduleCategory scheduleCategory;
 
-    @Column(nullable = true)
-    private String content;
+    @Column
+    @Builder.Default
+    private String content = "";
 
     @Column(nullable = false)
     private Boolean isDone;
@@ -31,14 +32,19 @@ public class Schedule {
     @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = true)
-    private LocalDate startDate;
+    @Column
+    @Builder.Default
+    private LocalDate startDate = LocalDate.now();
 
-    @Column(nullable = true)
-    private LocalDate endDate;
+
+    @Column
+    @Builder.Default
+    private LocalDate endDate = LocalDate.now();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ScheduleType type;
+
+
 }
 
