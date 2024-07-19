@@ -2,7 +2,7 @@ spring:
   application:
     name: toex
   datasource:
-    url: jdbc:mysql://localhost:3306/toex
+    url: jdbc:mysql://toex-db:3306/toex
     username: root
     password: ${DB_PASSWORD}
   jpa:
