@@ -48,3 +48,5 @@ out/
 
 # Ignore the PropertyConfig.java file
 /src/main/java/com/example/toex/config/PropertyConfig.java
+
+/src/main/generated/**
