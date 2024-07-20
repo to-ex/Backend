@@ -21,9 +21,8 @@ public class EngTest {
     @Column(name = "test_category", nullable = false)
     private TestCategory testCategory;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "test_area", nullable = false)
-    private TestArea testArea;
+    private String testArea;
 
     @Column(name = "test_place_address", nullable = false)
     private String testPlaceAddress;

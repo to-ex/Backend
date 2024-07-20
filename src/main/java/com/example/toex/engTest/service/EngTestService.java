@@ -1,8 +1,6 @@
 package com.example.toex.engTest.service;
 
 import com.example.toex.engTest.dto.EngTest;
-import com.example.toex.engTest.dto.IeltsTest;
-import com.example.toex.engTest.dto.ToeflTest;
 import com.example.toex.engTest.dto.enums.*;
 import com.example.toex.engTest.repository.TestRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +20,15 @@ public class EngTestService {
     private final TestRepository testRepository;
 
 
-    public List<EngTest> getTests(TestCategory category, TestArea area, TestType type, LocalDate date) {
+    public List<EngTest> getTests(TestCategory category, String area, TestType type, LocalDate date) {
         if (area == null && type == null) {
             return testRepository.findByTestCategoryAndTestDate(category.name(), date);
         } else if (area == null) {
             return testRepository.findByTestCategoryAndTestTypeAndTestDate(category.name(), type.name(), date);
         } else if (type == null) {
-            return testRepository.findByTestCategoryAndTestAreaAndTestDate(category.name(), area.name(), date);
+            return testRepository.findByTestCategoryAndTestAreaAndTestDate(category.name(), area, date);
         } else {
-            return testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category.name(), area.name(), type.name(), date);
+            return testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category.name(), area, type.name(), date);
         }
     }
 

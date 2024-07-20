@@ -19,7 +19,7 @@ public class QEngTest extends EntityPathBase<EngTest> {
 
     public static final QEngTest engTest = new QEngTest("engTest");
 
-    public final EnumPath<com.example.toex.engTest.dto.enums.TestArea> testArea = createEnum("testArea", com.example.toex.engTest.dto.enums.TestArea.class);
+    public final StringPath testArea = createString("testArea");
 
     public final EnumPath<com.example.toex.engTest.dto.enums.TestCategory> testCategory = createEnum("testCategory", com.example.toex.engTest.dto.enums.TestCategory.class);
 

@@ -7,7 +7,6 @@ public enum TestArea {
         CHUNGCHEONG,
         GANGWON,
         JEOLLA,
-        GYEONGSANG,
         JEJU,
         DAEJEON,
         BUSAN
