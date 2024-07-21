@@ -35,12 +35,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         String requestUri = request.getRequestURI();
 
         // 제외할 URL에 대한 요청인지 확인
         if (EXCLUDE_URLS.stream().anyMatch(uri -> requestUri.matches(uri.replace("**", ".*")))) {
-            filterChain.doFilter(request, response);
+            try {
+                filterChain.doFilter(request, response);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ServletException e) {
+                throw new RuntimeException(e);
+            }
             return;
         }
 
