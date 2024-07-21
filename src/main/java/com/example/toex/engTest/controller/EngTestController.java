@@ -22,7 +22,7 @@ public class EngTestController {
     @GetMapping
     public ResponseEntity<List<EngTest>> getTests(
             @RequestParam TestCategory category,
-            @RequestParam(required = false) TestArea area,
+            @RequestParam(required = false) String area,
             @RequestParam(required = false) TestType type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
