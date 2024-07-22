@@ -33,8 +33,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (keyword != null && !keyword.isEmpty()) {
-            builder.and(board.title.contains(keyword))
-                    .or(board.content.containsIgnoreCase(keyword));
+            builder.and(board.title.contains(keyword));
         }
         if (boardCategory != null) {
             builder.and(board.boardCategory.eq(boardCategory));
