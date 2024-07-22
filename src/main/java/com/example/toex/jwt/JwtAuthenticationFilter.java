@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,9 +28,27 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
+    // 제외할 URL 목록
+    private static final List<String> EXCLUDE_URLS = Arrays.asList(
+            "/", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login/**", "/api/v1/auth/user/refresh",
+            "/api/v1/engTest", "/api/v1/board", "/api/v1/board/**"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         String requestUri = request.getRequestURI();
+
+        // 제외할 URL에 대한 요청인지 확인
+        if (EXCLUDE_URLS.stream().anyMatch(uri -> requestUri.matches(uri.replace("**", ".*")))) {
+            try {
+                filterChain.doFilter(request, response);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ServletException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
 
         String accessToken = jwtAuthenticationProvider.extract(request);
         String refreshToken = request.getHeader("RefreshToken");
