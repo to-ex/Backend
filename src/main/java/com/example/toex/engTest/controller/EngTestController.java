@@ -15,15 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/engTest")
+
 public class EngTestController {
 
     private final EngTestService engTestService;
 
     @GetMapping
     public ResponseEntity<List<EngTest>> getTests(
-            @RequestParam TestCategory category,
+            @RequestParam String category,
             @RequestParam(required = false) String area,
-            @RequestParam(required = false) TestType type,
+            @RequestParam(required = false) String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         if (date == null) {
@@ -32,7 +33,11 @@ public class EngTestController {
 
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
 
+
         System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);
+
     }
+
+
 }

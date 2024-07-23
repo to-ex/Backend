@@ -112,6 +112,13 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BOARD));
 
+
+        log.info("Updating board with ID: {}", boardId);
+        log.info("Board owner ID: {}", board.getUserId());
+
+        System.out.println("userDetail = " + userDetail);
+        log.info("User ID from token: {}", userDetail != null ? userDetail.getUser().getUserId() : "null");
+
         if (userDetail == null || !board.getUserId().equals(userDetail.getUser().getUserId())) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }

@@ -4,6 +4,7 @@ import com.example.toex.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +25,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
             "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh",
-            "/api/v1/engTest", "/api/v1/board", "/api/v1/board/**"
+            "/api/v1/engTest", "/api/v1/board/**","/api/v1/user/myinfo"
     };
 
     @Bean
@@ -36,8 +37,13 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
-                                .requestMatchers("/api/v1/user/myinfo").hasAuthority("ROLE_USER")
+                                .requestMatchers("/api/v1/board").permitAll() // GET 요청은 인증 없이 허용
+                                .requestMatchers("/api/v1/engTest/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/board/**").permitAll() // GET 요청은 인증 없이 허용
+                                .requestMatchers(HttpMethod.POST, "/api/v1/board/").authenticated() // POST 요청은 인증 필요
+                                .requestMatchers(HttpMethod.PATCH, "/api/v1/board/**").authenticated() // PATCH 요청은 인증 필요
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/board/**").authenticated() // DELETE 요청은 인증 필요
+                                .requestMatchers("/api/v1/board/mypost", "/api/v1/board/scrap", "/api/v1/like/**", "/api/v1/scrap/**", "/api/v1/comment/**").authenticated() // 인증 필요
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
