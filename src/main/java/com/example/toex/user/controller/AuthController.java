@@ -6,10 +6,8 @@ import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.common.message.BasicResponse;
 import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.user.domain.dto.TokenInfo;
-import com.example.toex.user.domain.dto.UserInfoResponse;
 import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.service.OAuthService;
-import jakarta.persistence.Basic;
 import jakarta.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
@@ -67,7 +65,7 @@ public class AuthController {
 
 
     // 카카오 로그인
-    @PostMapping("/login/kakao")
+    @GetMapping("/login/kakao")
     public ResponseEntity<BasicResponse<UserResponse>> loginKakao(@RequestParam("code") String authorizationCode) {
         UserResponse userResponse = oAuthService.loginKakao(authorizationCode);
         return ResponseEntity.ok(BasicResponse.ofSuccess(userResponse));
@@ -75,14 +73,14 @@ public class AuthController {
 
 
     //구글 로그인
-    @PostMapping("/login/google")
+    @GetMapping("/login/google")
     public ResponseEntity<BasicResponse<UserResponse>> loginGoogle(@RequestParam("code") String authorizationCode) {
         UserResponse userResponse =  oAuthService.loginGoogle(authorizationCode);
         return ResponseEntity.ok(BasicResponse.ofSuccess(userResponse));
     }
 
     //네이버 로그인
-    @PostMapping("/login/naver")
+    @GetMapping("/login/naver")
     public ResponseEntity<BasicResponse<UserResponse>> loginNaver(@RequestParam("code") String authorizationCode, String state) {
         UserResponse userResponse =oAuthService.loginNaver(authorizationCode,state);
         return ResponseEntity.ok(BasicResponse.ofSuccess(userResponse));
