@@ -25,7 +25,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
             "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh",
-            "/api/v1/engTest", "/api/v1/board/**","/api/v1/user/myinfo"
+            "/api/v1/engTest", "/api/v1/board/**","/api/v1/user/myinfo","/favicon.ico"
     };
 
     @Bean
@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
+                                .requestMatchers("/api/v1/auth/login/**").permitAll()
                                 .requestMatchers("/api/v1/board").permitAll() // GET 요청은 인증 없이 허용
                                 .requestMatchers("/api/v1/engTest/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/board/**").permitAll() // GET 요청은 인증 없이 허용
