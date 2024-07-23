@@ -21,11 +21,8 @@ public interface TestRepository extends JpaRepository<EngTest, Long> {
                 @Param("testDate") String testDate
         );
 
-        @Query(value = "SELECT * FROM eng_test WHERE test_category = :testCategory AND test_date = :testDate", nativeQuery = true)
-        List<EngTest> findByTestCategoryAndDate(
-                @Param("testCategory") String testCategory,
-                @Param("testDate") String testDate
-        );
+        @Query("SELECT e FROM EngTest e WHERE e.testCategory = :testCategory AND e.testDate = :testDate")
+        List<EngTest> findTestsByCategoryAndDate(@Param("testCategory") String testCategory, @Param("testDate") String testDate);
 
         @Query(value = "SELECT * FROM eng_test WHERE test_category = :testCategory AND test_type = :testType AND test_date = :testDate", nativeQuery = true)
         List<EngTest> findByTestCategoryAndTestTypeAndTestDate(

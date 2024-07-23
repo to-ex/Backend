@@ -1,4 +1,4 @@
-package com.example.toex.schedule.dto;
+package com.example.toex.schedule.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -3,7 +3,10 @@ package com.example.toex.user.service;
 import com.example.toex.client.GoogleClient;
 import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.jwt.JwtAuthenticationProvider;
+import com.example.toex.schedule.repository.ScheduleRepository;
 import com.example.toex.user.User;
 import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.domain.params.GoogleInfoResponse;
@@ -15,6 +18,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -25,6 +29,7 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
+    private final ScheduleRepository scheduleRepository;
     private static final String DEFAULT_USER_IMAGE_URL = "https://toex-file.s3.ap-northeast-2.amazonaws.com/userImages/default+profile.png";
 
     public UserResponse loginKakao(String authorizationCode) {
@@ -50,8 +55,6 @@ public class OAuthService {
         String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
         String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
 
-
-
         // Refresh Token 갱신
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
@@ -72,6 +75,10 @@ public class OAuthService {
     }
 
     private <T extends UserInfo> User newMember(T info) {
+        if (userRepository.findByEmail(info.getEmail()).isPresent()) {
+            throw new CustomException(ErrorCode.ALREADY_EXIST_USER);
+        }
+
         String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
 
         User user = User.builder()
@@ -98,14 +105,16 @@ public class OAuthService {
     }
 
     // 탈퇴 메서드
+    @Transactional
     public void withdraw(HttpServletRequest request) {
         String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
         Long userId = jwtAuthenticationProvider.getUserId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER));
 
+        scheduleRepository.deleteByUserId(userId);
         userRepository.delete(user);
     }
 }

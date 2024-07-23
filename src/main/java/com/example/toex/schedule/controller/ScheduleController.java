@@ -1,11 +1,14 @@
 package com.example.toex.schedule.controller;
 
-import com.example.toex.schedule.dto.Schedule;
+import com.example.toex.schedule.domain.Schedule;
 
-import com.example.toex.schedule.dto.ScheduleType;
+import com.example.toex.schedule.domain.ScheduleType;
+import com.example.toex.schedule.dto.ScheduleDTO;
 import com.example.toex.schedule.service.ScheduleService;
+import com.example.toex.security.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,22 +21,23 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @GetMapping
-    public ResponseEntity<List<Schedule>> getSchedules(@RequestParam Long userId, @RequestParam(required = false) ScheduleType type) {
-        List<Schedule> schedules = scheduleService.getSchedulesByUserIdAndType(userId, type);
+    public ResponseEntity<List<Schedule>> getSchedules(@RequestParam(required = false) ScheduleType type, @AuthenticationPrincipal CustomUserDetail userDetail) {
+        List<Schedule> schedules = scheduleService.getSchedulesByUserIdAndType(type,userDetail);
         return ResponseEntity.ok(schedules);
     }
     //스케줄 생성
     @PostMapping
-    public ResponseEntity<Schedule> createSchedule(@RequestBody Schedule schedule) {
-        Schedule createdSchedule = scheduleService.createSchedule(schedule);
+    public ResponseEntity<Schedule> createSchedule(@RequestBody ScheduleDTO schedule, @AuthenticationPrincipal CustomUserDetail userDetail) {
+        Schedule createdSchedule = scheduleService.createSchedule(schedule,userDetail);
         return ResponseEntity.ok(createdSchedule);
     }
 
     // 어학 시험 일정 스케줄 추가
     @PostMapping("/engTest/{testId}")
-    public ResponseEntity<Schedule> createScheduleFromEngTest(@PathVariable Long testId, @RequestParam Long userId) {
-        Schedule createdSchedule = scheduleService.createScheduleFromEngTest(testId, userId);
+    public ResponseEntity<Schedule> createScheduleFromEngTest(@PathVariable Long testId,  @AuthenticationPrincipal CustomUserDetail userDetail) {
+        Schedule createdSchedule = scheduleService.createScheduleFromEngTest(testId,userDetail);
         return ResponseEntity.ok(createdSchedule);
+
     }
     // 스케줄 수정
     @PatchMapping("/{scheduleId}")

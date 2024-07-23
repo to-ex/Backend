@@ -12,4 +12,5 @@ public interface BoardRepositoryCustom {
     BoardDetailRes selectBoardDetail(Long boardId, Long userId);
     List<BoardRes> selectMyScraps(Long userId);
     List<BoardDetailRes.CommentRes> selectCommentList(Long boardId);
+
 }

@@ -1,5 +1,7 @@
 package com.example.toex.engTest.service;
 
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.engTest.dto.EngTest;
 import com.example.toex.engTest.repository.TestRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +22,23 @@ public class EngTestService {
     private final TestRepository testRepository;
 
     public List<EngTest> getTests(String category, String area, String type, String date) {
-        if (date == null) {
-            date = String.valueOf(LocalDate.now());
-        }
+        List<EngTest> tests;
 
         if (area == null && type == null) {
-            return testRepository.findByTestCategoryAndDate(category, date);
+            tests = testRepository.findTestsByCategoryAndDate(category, date);
+        } else if (area == null) {
+            tests = testRepository.findByTestCategoryAndTestTypeAndTestDate(category, type, date);
+        } else if (type == null) {
+            tests = testRepository.findByTestCategoryAndTestAreaAndTestDate(category, area, date);
         } else {
-            return testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category, area, type, date);
+            tests = testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category, area, type, date);
         }
+
+        if (tests.isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_BOARD);
+        }
+
+        return tests;
     }
 
     public List<EngTest> getTestsByCategory(String category) {

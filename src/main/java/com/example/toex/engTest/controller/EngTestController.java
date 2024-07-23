@@ -1,5 +1,7 @@
 package com.example.toex.engTest.controller;
 
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.engTest.dto.EngTest;
 import com.example.toex.engTest.dto.enums.*;
 
@@ -27,12 +29,11 @@ public class EngTestController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String date) {
 
-        if (date == null) {
+        if (date == null)  {
             date = String.valueOf(LocalDate.now());
         }
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
 
-        System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);
 
     }
