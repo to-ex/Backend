@@ -39,5 +39,11 @@ public class EngTestController {
 
     }
 
+    @GetMapping("getAll")
+    public ResponseEntity<List<EngTest>> getTestsByCategory(@RequestParam String category
+    ){
+        List<EngTest> tests = engTestService.getTestsByCategory(category);
+        return ResponseEntity.ok(tests);
+    }
 
 }
