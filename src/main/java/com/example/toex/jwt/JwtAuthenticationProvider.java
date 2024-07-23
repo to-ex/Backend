@@ -131,6 +131,7 @@ public class JwtAuthenticationProvider {
         String email = claims.getSubject();
         log.info("Extracted email from token: {}", email);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        log.info("Loaded UserDetails: {}", userDetails);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 

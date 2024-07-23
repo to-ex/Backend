@@ -33,15 +33,6 @@ public class EngTestController {
 
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
 
-//        if (area == null && type == null) {
-//            List<EngTest> tests = engTestService.getTestsByCategory(category);
-//            System.out.println("tests = " + tests);
-//            return ResponseEntity.ok(tests);
-//        }
-//        else {
-//
-//
-//        }
 
         System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);

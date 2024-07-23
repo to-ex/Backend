@@ -30,23 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 제외할 URL 목록
     private static final List<String> EXCLUDE_URLS = Arrays.asList(
-            "/", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login/**", "/api/v1/auth/user/refresh",
-            "/api/v1/engTest", "/api/v1/board/**"
+            "/", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login/**", "/api/v1/auth/user/refresh","/api/v1/engTest"
     );
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String requestUri = request.getRequestURI();
+        log.info("doFilterInternal: Incoming request to: {}", requestUri);
 
-        // 제외할 URL에 대한 요청인지 확인
         if (EXCLUDE_URLS.stream().anyMatch(uri -> requestUri.matches(uri.replace("**", ".*")))) {
-            try {
-                filterChain.doFilter(request, response);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ServletException e) {
-                throw new RuntimeException(e);
-            }
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -70,7 +64,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 verifyTokenAndSetAuthentication(newAccessToken);
             } else {
                 log.warn("No Access Token or Refresh Token provided");
-                // 다음 필터로 요청을 넘기는 부분 (permitAll() 설정이 적용될 수 있도록)
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -84,19 +77,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (CustomException e) {
             log.error("CustomException: {}", e.getMessage());
             ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
-            try {
-                responseSend(response, errorResponse);
-            } catch (IOException ioException) {
-                log.error("IOException while sending error response: {}", ioException.getMessage());
-            }
+            responseSend(response, errorResponse);
         } catch (Exception e) {
             log.error("Exception: {}", e.getMessage(), e);
             ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getClass().getName(), e.getMessage());
-            try {
-                responseSend(response, errorResponse);
-            } catch (IOException ioException) {
-                log.error("IOException while sending error response: {}", ioException.getMessage());
-            }
+            responseSend(response, errorResponse);
         }
     }
 
