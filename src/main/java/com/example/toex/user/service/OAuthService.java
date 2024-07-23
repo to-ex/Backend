@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -68,6 +69,8 @@ public class OAuthService {
         User user = findOrCreateMember(info);
         String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
         String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
+
+
 
         // Refresh Token 갱신
         user.setRefreshToken(newRefreshToken);
