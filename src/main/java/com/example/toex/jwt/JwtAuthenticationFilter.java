@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 제외할 URL 목록
     private static final List<String> EXCLUDE_URLS = Arrays.asList(
-            "/", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login/**", "/api/v1/auth/user/refresh","/api/v1/engTest"
+            "/", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/auth/login/**", "/api/v1/auth/user/refresh","/api/v1/engTest",
+            "/favicon.ico"
     );
 
     @Override
