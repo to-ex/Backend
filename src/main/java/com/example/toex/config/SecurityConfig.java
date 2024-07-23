@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     public static final String[] PERMIT_ALL_REQUESTS = {
             "/",  "/swagger-ui/**", "/v3/api-docs/**","/api/v1/auth/login/**","/api/v1/auth/user/refresh",
-            "/api/v1/engTest", "/api/v1/board", "/api/v1/board/**"
+            "/api/v1/engTest", "/api/v1/board/**","/api/v1/user/myinfo"
     };
 
     @Bean
@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
-                                .requestMatchers("/api/v1/user/myinfo").hasAuthority("ROLE_USER")
+                                .requestMatchers("/api/v1/board/**").hasAuthority("ROLE_USER")
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

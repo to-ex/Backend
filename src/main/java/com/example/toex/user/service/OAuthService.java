@@ -101,9 +101,9 @@ public class OAuthService {
     public void withdraw(HttpServletRequest request) {
         String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
-        String email = claims.getSubject();
+        Long userId = jwtAuthenticationProvider.getUserId();
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         userRepository.delete(user);
