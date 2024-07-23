@@ -20,16 +20,21 @@ public class EngTestService {
     private final TestRepository testRepository;
 
 
-    public List<EngTest> getTests(TestCategory category, String area, TestType type, LocalDate date) {
+    public List<EngTest> getTests(String category, String area, String type, LocalDate date) {
         if (area == null && type == null) {
-            return testRepository.findByTestCategoryAndTestDate(category.name(), date);
+            return testRepository.findByTestCategoryAndTestDate(category, date);
         } else if (area == null) {
-            return testRepository.findByTestCategoryAndTestTypeAndTestDate(category.name(), type.name(), date);
+            return testRepository.findByTestCategoryAndTestTypeAndTestDate(category, type, date);
         } else if (type == null) {
-            return testRepository.findByTestCategoryAndTestAreaAndTestDate(category.name(), area, date);
+            return testRepository.findByTestCategoryAndTestAreaAndTestDate(category, area, date);
         } else {
-            return testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category.name(), area, type.name(), date);
+            return testRepository.findByTestCategoryAndTestAreaAndTestTypeAndTestDate(category, area, type, date);
         }
+    }
+
+
+    public List<EngTest> getTestsByCategory(String category) {
+        return testRepository.findByTestCategory(category);
     }
 
 }

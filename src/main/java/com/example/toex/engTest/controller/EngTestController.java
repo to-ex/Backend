@@ -22,9 +22,9 @@ public class EngTestController {
 
     @GetMapping
     public ResponseEntity<List<EngTest>> getTests(
-            @RequestParam TestCategory category,
+            @RequestParam String category,
             @RequestParam(required = false) String area,
-            @RequestParam(required = false) TestType type,
+            @RequestParam(required = false) String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         if (date == null) {
@@ -33,7 +33,20 @@ public class EngTestController {
 
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
 
+//        if (area == null && type == null) {
+//            List<EngTest> tests = engTestService.getTestsByCategory(category);
+//            System.out.println("tests = " + tests);
+//            return ResponseEntity.ok(tests);
+//        }
+//        else {
+//
+//
+//        }
+
         System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);
+
     }
+
+
 }
