@@ -79,7 +79,7 @@ public class ScheduleService {
         Schedule schedule = Schedule.builder()
                 .userId(userId)
                 .scheduleCategory(ScheduleCategory.TEST)
-                .content("English Test: " + engTest.getTestType() + " in " + engTest.getTestArea())
+                .content("English Test: " + engTest + " in " + engTest.getTestArea())
                 .startDate(engTest.getTestDateTime().toLocalDate())
                 .endDate(engTest.getTestDateTime().toLocalDate())
                 .type(ScheduleType.CALENDAR)

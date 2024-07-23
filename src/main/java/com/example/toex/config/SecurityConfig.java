@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
                                 .requestMatchers("/api/v1/board").permitAll() // GET 요청은 인증 없이 허용
                                 .requestMatchers("/api/v1/engTest/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/board/**").permitAll() // GET 요청은 인증 없이 허용

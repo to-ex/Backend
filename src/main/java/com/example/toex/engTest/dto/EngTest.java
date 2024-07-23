@@ -17,9 +17,9 @@ public class EngTest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long testId;
 
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "test_category", nullable = false)
-    private TestCategory testCategory;
+    private String testCategory;
 
     @Column(name = "test_area", nullable = false)
     private String testArea;
@@ -33,7 +33,9 @@ public class EngTest {
     @Column(name = "test_date_time", nullable = false)
     private LocalDateTime testDateTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "test_type", nullable = false)
-    private TestType testType;
+    @Column(name = "test_date", nullable = false)
+    private String testDate;
+
+    @Column(name = "test_time", nullable = false)
+    private String testTime;
 }

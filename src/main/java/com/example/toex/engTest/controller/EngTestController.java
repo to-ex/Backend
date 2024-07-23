@@ -25,21 +25,19 @@ public class EngTestController {
             @RequestParam String category,
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String type,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam(required = false) String date) {
 
         if (date == null) {
-            date = LocalDate.now();
+            date = String.valueOf(LocalDate.now());
         }
-
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
-
 
         System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);
 
     }
-
-    @GetMapping("getAll")
+    //필터 없이 전체 조회
+    @GetMapping("/getAll")
     public ResponseEntity<List<EngTest>> getTestsByCategory(@RequestParam String category
     ){
         List<EngTest> tests = engTestService.getTestsByCategory(category);
