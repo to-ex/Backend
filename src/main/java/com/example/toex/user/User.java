@@ -14,13 +14,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
-public class User  {
+public class User  extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +33,20 @@ public class User  {
     private String name;
     private String refreshToken;
     private String userImage;
+
+    @Column(name = "created_dt", nullable = false)
+    @CreatedDate
+    private LocalDateTime createdDt;
+
+    @Column(name = "updated_dt")
+    @LastModifiedDate
+    private LocalDateTime updatedDt;
+
+    @Column(name = "deleted_dt")
+    private LocalDateTime deletedDt;
+
+    @Column(name = "del_yn", columnDefinition = "VARCHAR(1) default 'N'")
+    private String delYn;
 
     @Builder
     public User(Long userId, String email, String name, String refreshToken,String userImage) {
@@ -53,6 +71,30 @@ public class User  {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdDt == null) {
+            this.createdDt = LocalDateTime.now();
+        }
+        if (this.updatedDt == null) {
+            this.updatedDt = LocalDateTime.now();
+        }
+        this.delYn = "N";
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedDt = LocalDateTime.now();
+    }
+
+    public void softDelete() {
+        this.delYn = "Y";
+        this.deletedDt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return "Y".equals(this.delYn);
     }
 
 }

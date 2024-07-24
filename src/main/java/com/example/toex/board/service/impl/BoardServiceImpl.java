@@ -156,9 +156,14 @@ public class BoardServiceImpl implements BoardService {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        board.delete();
+        if (board.getDelYn().equals("Y")) {
+            throw new CustomException(ErrorCode.INVALID_BOARD);
+        }
 
-        return boardRepository.save(board).getBoardId();
+        board.delete();
+        boardRepository.save(board);
+
+        return boardId;
     }
 
     @Override

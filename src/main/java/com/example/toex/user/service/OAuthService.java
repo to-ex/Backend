@@ -68,8 +68,6 @@ public class OAuthService {
         String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
         String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
 
-
-
         // Refresh Token 갱신
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
@@ -85,12 +83,11 @@ public class OAuthService {
     }
 
     private <T extends UserInfo> User findOrCreateMember(T info) {
-        return userRepository.findByEmail(info.getEmail())
+        return userRepository.findByEmailAndDelYn(info.getEmail(), "N")
                 .orElseGet(() -> newMember(info));
     }
-
     private <T extends UserInfo> User newMember(T info) {
-        if (userRepository.findByEmail(info.getEmail()).isPresent()) {
+        if (userRepository.findByEmailAndDelYn(info.getEmail(), "N").isPresent()) {
             throw new CustomException(ErrorCode.ALREADY_EXIST_USER);
         }
 
@@ -106,13 +103,14 @@ public class OAuthService {
         return user;
     }
 
+
     // 로그아웃 메서드
     public void logout(HttpServletRequest request) {
         String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
         String email = claims.getSubject();
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDelYn(email, "N")
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.invalidateRefreshToken();
@@ -143,6 +141,7 @@ public class OAuthService {
         // 회원 스케줄 삭제
         scheduleRepository.deleteAll(scheduleRepository.findByUserId(user.getUserId()));
 
-        userRepository.delete(user);
+        user.softDelete(); // 사용자 소프트 삭제
+        userRepository.save(user);
     }
 }

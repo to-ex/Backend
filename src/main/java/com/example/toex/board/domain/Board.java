@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,22 @@ public class Board extends BaseEntity {
 
     @Lob
     private String content;
+
+    @Column(nullable = false)
+    private String delYn = "N";
+
+    @Column
+    private LocalDateTime deletedDt;
+
+    @PrePersist
+    public void prePersist() {
+        this.delYn = "N";
+    }
+
+    public void delete() {
+        this.delYn = "Y";
+        this.deletedDt = LocalDateTime.now();
+    }
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
