@@ -99,13 +99,13 @@ public class ScheduleService {
 
     public Schedule createScheduleFromEngTest(Long testId, CustomUserDetail userDetail) {
         EngTest engTest = testRepository.findById(testId)
-                .orElseThrow(() -> new IllegalArgumentException("Test not found"));
+                .orElseThrow(() -> new CustomException(INVALID_SCHEDULE));
 
         Long userId = getUserId(userDetail, true);
         Schedule schedule = Schedule.builder()
                 .userId(userId)
                 .scheduleCategory(ScheduleCategory.TEST)
-                .content("English Test: " + engTest + " in " + engTest.getTestArea())
+                .content(engTest.getTestCategory())
                 .startDate(engTest.getTestDateTime().toLocalDate())
                 .endDate(engTest.getTestDateTime().toLocalDate())
                 .type(ScheduleType.CALENDAR)
