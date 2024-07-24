@@ -23,11 +23,9 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -122,7 +120,6 @@ public class OAuthService {
     }
 
     // 탈퇴 메서드
-    @Transactional
     public void withdraw(HttpServletRequest request) {
         String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);

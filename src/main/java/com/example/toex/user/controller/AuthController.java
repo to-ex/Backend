@@ -65,7 +65,7 @@ public class AuthController {
 
 
     // 카카오 로그인
-    @PostMapping("/login/kakao")
+    @GetMapping("/login/kakao")
     public ResponseEntity<BasicResponse<UserResponse>> loginKakao(@RequestParam("code") String authorizationCode) {
         UserResponse userResponse = oAuthService.loginKakao(authorizationCode);
         return ResponseEntity.ok(BasicResponse.ofSuccess(userResponse));

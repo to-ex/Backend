@@ -23,8 +23,9 @@ public class EngTestService {
 
     public List<EngTest> getTests(String category, String area, String type, String date) {
         List<EngTest> tests;
-
+        System.out.println("date = " + date);
         if (area == null && type == null) {
+
             tests = testRepository.findTestsByCategoryAndDate(category, date);
         } else if (area == null) {
             tests = testRepository.findByTestCategoryAndTestTypeAndTestDate(category, type, date);
@@ -35,7 +36,7 @@ public class EngTestService {
         }
 
         if (tests.isEmpty()) {
-            throw new CustomException(ErrorCode.INVALID_BOARD);
+            throw new CustomException(ErrorCode.INVALID_CONTENT);
         }
 
         return tests;

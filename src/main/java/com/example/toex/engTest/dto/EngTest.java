@@ -18,7 +18,7 @@ public class EngTest {
     private Long testId;
 
 
-    @Column(name = "test_category", nullable = false)
+    @Column(name = "test_category")
     private String testCategory;
 
     @Column(name = "test_area", nullable = false)
@@ -29,6 +29,9 @@ public class EngTest {
 
     @Column(name = "test_place_name", nullable = false)
     private String testPlaceName;
+
+    @Column(name = "test_type", nullable = false)
+    private String testType;
 
     @Column(name = "test_date_time", nullable = false)
     private LocalDateTime testDateTime;
