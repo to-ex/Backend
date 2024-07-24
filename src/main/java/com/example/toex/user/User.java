@@ -49,12 +49,13 @@ public class User  extends BaseEntity{
     private String delYn;
 
     @Builder
-    public User(Long userId, String email, String name, String refreshToken,String userImage) {
+    public User(Long userId, String email, String name, String refreshToken,String userImage,String delYn) {
         this.userId = userId;
         this.email = email;
         this.name = name;
         this.refreshToken = refreshToken;
         this.userImage = userImage;
+        this.delYn =delYn;
     }
 
     // 사용자 정보 업데이트 메서드

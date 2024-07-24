@@ -83,14 +83,18 @@ public class OAuthService {
     }
 
     private <T extends UserInfo> User findOrCreateMember(T info) {
-        return userRepository.findByEmailAndDelYn(info.getEmail(), "N")
+        return userRepository.findByEmail(info.getEmail())
+                .map(user -> {
+                    if ("Y".equals(user.getDelYn())) {
+                        user.setDelYn("N");
+                        user.setRefreshToken(jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail()));
+                        userRepository.save(user);
+                    }
+                    return user;
+                })
                 .orElseGet(() -> newMember(info));
     }
     private <T extends UserInfo> User newMember(T info) {
-        if (userRepository.findByEmailAndDelYn(info.getEmail(), "N").isPresent()) {
-            throw new CustomException(ErrorCode.ALREADY_EXIST_USER);
-        }
-
         String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
 
         User user = User.builder()
@@ -98,6 +102,7 @@ public class OAuthService {
                 .name(info.getName())
                 .refreshToken(refreshToken)
                 .userImage(DEFAULT_USER_IMAGE_URL)
+                .delYn("N")
                 .build();
         userRepository.save(user);
         return user;
