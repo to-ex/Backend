@@ -2,10 +2,7 @@ package com.example.toex.user;
 
 import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
 import io.jsonwebtoken.Claims;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
 public class User {
 
     @Id
