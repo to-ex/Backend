@@ -39,7 +39,9 @@ public enum ErrorCode {
     INVALID_CONTENT(404, "ENGLISH002", "존재하지 않는 어학 일정 입니다."),
 
     //스케줄
-    INVALID_SCHEDULE(404, "SCHEDULE001", "존재하지 않는 스케줄입니다.")
+    INVALID_SCHEDULE(404, "SCHEDULE001", "존재하지 않는 스케줄입니다."),
+
+    ALREADY_DELETE_SCHEDULE(409, "SCHEDULE001", "이미 삭제된 스케줄입니다.")
 
     ;
 

@@ -72,7 +72,12 @@ public class ScheduleService {
     public void deleteSchedule(Long scheduleId) {
         Schedule existingSchedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new CustomException(INVALID_SCHEDULE));
-        scheduleRepository.delete(existingSchedule);
+        //이미 삭제되었을 경우
+        if( existingSchedule.getDelYn().equals("Y")){
+            throw new CustomException(ErrorCode.ALREADY_DELETE_SCHEDULE);
+        }
+        existingSchedule.delete(); // 소프트 삭제
+        scheduleRepository.save(existingSchedule);
     }
 
     public Schedule toggleScheduleDone(Long scheduleId) {
