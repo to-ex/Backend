@@ -1,7 +1,7 @@
 package com.example.toex.user;
 
+import com.example.toex.common.BaseEntity;
 import com.example.toex.user.domain.dto.UserInfoUpdateRequest;
-import io.jsonwebtoken.Claims;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

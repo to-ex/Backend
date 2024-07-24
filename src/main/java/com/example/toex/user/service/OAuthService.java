@@ -1,9 +1,15 @@
 package com.example.toex.user.service;
 
+import com.example.toex.board.domain.Board;
+import com.example.toex.board.repository.BoardRepository;
+import com.example.toex.board.repository.CommentRepository;
+import com.example.toex.board.repository.LikesRepository;
+import com.example.toex.board.repository.ScrapsRepository;
 import com.example.toex.client.GoogleClient;
 import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
 import com.example.toex.jwt.JwtAuthenticationProvider;
+import com.example.toex.schedule.repository.ScheduleRepository;
 import com.example.toex.user.User;
 import com.example.toex.user.domain.dto.UserResponse;
 import com.example.toex.user.domain.params.GoogleInfoResponse;
@@ -15,6 +21,9 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -24,6 +33,12 @@ public class OAuthService {
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
+
+    private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final LikesRepository likesRepository;
+    private final ScrapsRepository scrapsRepository;
 
     private static final String DEFAULT_USER_IMAGE_URL = "https://toex-file.s3.ap-northeast-2.amazonaws.com/userImages/default+profile.png";
 
@@ -98,6 +113,7 @@ public class OAuthService {
     }
 
     // 탈퇴 메서드
+    @Transactional
     public void withdraw(HttpServletRequest request) {
         String accessToken = jwtAuthenticationProvider.extract(request);
         Claims claims = jwtAuthenticationProvider.verify(accessToken);
@@ -105,6 +121,21 @@ public class OAuthService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // 회원이 작성한 게시글 및 해당 게시글의 댓글 삭제
+        List<Board> boardList = boardRepository.findByUserId(user.getUserId());
+        boardList.forEach(board -> {
+            commentRepository.deleteAll(board.getComments());
+            likesRepository.deleteAll(likesRepository.findByBoardId(board.getBoardId()));
+            scrapsRepository.deleteAll(scrapsRepository.findByBoardId(board.getBoardId()));
+        });
+        boardRepository.deleteAll(boardList);
+
+        // 회원이 작성한 댓글 삭제
+        commentRepository.deleteAll(commentRepository.findByCommenterId(user.getUserId()));
+
+        // 회원 스케줄 삭제
+        scheduleRepository.deleteAll(scheduleRepository.findByUserId(user.getUserId()));
 
         userRepository.delete(user);
     }

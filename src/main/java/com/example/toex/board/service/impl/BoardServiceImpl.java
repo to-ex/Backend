@@ -107,6 +107,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public Long updateBoard(Long boardId, BoardReq boardReq, CustomUserDetail userDetail) {
 
         Board board = boardRepository.findById(boardId)
@@ -129,6 +130,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override //댓글 수정
+    @Transactional
     public Long updateComment(Long commentId, CommentReq commentReq, CustomUserDetail userDetail) {
         log.info("Updating comment with ID: {}", commentId);
         log.info("User ID from token: {}", userDetail.getUser().getUserId());
@@ -145,6 +147,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public Long deleteBoard(Long boardId, CustomUserDetail userDetail) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BOARD));
@@ -159,6 +162,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public void toggleLike(Long boardId, CustomUserDetail userDetail) {
         Long userId = getUserId(userDetail, true);
         Optional<Likes> likesOptional = likesRepository.findByUserIdAndBoardId(userId, boardId);
@@ -172,6 +176,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional
     public void toggleScrap(Long boardId, CustomUserDetail userDetail) {
         Long userId = getUserId(userDetail, true);
         Optional<Scraps> scrapsOptional = scrapsRepository.findByUserIdAndBoardId(userId, boardId);
@@ -185,6 +190,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override//댓글 등록
+    @Transactional
     public Long createComment(Long boardId, CommentReq commentReq, CustomUserDetail userDetail) {
         Long userId = getUserId(userDetail, true);
 
@@ -197,11 +203,11 @@ public class BoardServiceImpl implements BoardService {
                 .board(board)
                 .build();
 
-        Comment savedComment = commentRepository.save(comment);
-        return savedComment.getCommentId();
+        return commentRepository.save(comment).getCommentId();
     }
 
     @Override //댓글 삭제
+    @Transactional
     public void deleteComment(Long commentId, CustomUserDetail userDetail) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
@@ -210,7 +216,8 @@ public class BoardServiceImpl implements BoardService {
             throw new IllegalArgumentException("User not authorized to delete this comment");
         }
 
-        commentRepository.delete(comment);
+        comment.delete();
+        commentRepository.save(comment);
     }
 
 
