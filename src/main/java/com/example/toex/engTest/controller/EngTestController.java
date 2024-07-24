@@ -1,5 +1,7 @@
 package com.example.toex.engTest.controller;
 
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.engTest.dto.EngTest;
 import com.example.toex.engTest.dto.enums.*;
 
@@ -25,19 +27,22 @@ public class EngTestController {
             @RequestParam String category,
             @RequestParam(required = false) String area,
             @RequestParam(required = false) String type,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam(required = false) String date) {
 
-        if (date == null) {
-            date = LocalDate.now();
+        if (date == null)  {
+            date = String.valueOf(LocalDate.now());
         }
-
         List<EngTest> tests = engTestService.getTests(category, area, type, date);
 
-
-        System.out.println("tests = " + tests);
         return ResponseEntity.ok(tests);
 
     }
-
+    //필터 없이 전체 조회
+    @GetMapping("/getAll")
+    public ResponseEntity<List<EngTest>> getTestsByCategory(@RequestParam String category
+    ){
+        List<EngTest> tests = engTestService.getTestsByCategory(category);
+        return ResponseEntity.ok(tests);
+    }
 
 }

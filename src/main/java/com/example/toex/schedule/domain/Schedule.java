@@ -1,4 +1,4 @@
-package com.example.toex.schedule.dto;
+package com.example.toex.schedule.domain;
 
 import com.example.toex.common.BaseEntity;
 import jakarta.persistence.*;
@@ -9,7 +9,6 @@ import java.time.LocalDate;
 @Table(name = "Schedule")
 @Getter
 @Setter
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

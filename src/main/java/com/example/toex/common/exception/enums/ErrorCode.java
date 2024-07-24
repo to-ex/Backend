@@ -33,6 +33,14 @@ public enum ErrorCode {
 
     // COMMENT
     INVALID_COMMENT(404, "COMMENT001", "존재하지 않는 댓글입니다."),
+
+    // EngTest
+    INVALID_REQUEST(403, "ENGLISH001", "잘못된 요청 입니다."),
+    INVALID_CONTENT(404, "ENGLISH002", "존재하지 않는 어학 일정 입니다."),
+
+    //스케줄
+    INVALID_SCHEDULE(404, "SCHEDULE001", "존재하지 않는 스케줄입니다.")
+
     ;
 
     private int status;

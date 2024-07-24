@@ -1,5 +1,7 @@
 package com.example.toex.security;
 
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.user.User;
 import com.example.toex.user.respository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +23,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         log.info("Loading user by email: {}", email);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found in DB: " + email));
-
+                .orElseThrow(() ->  new CustomException(ErrorCode.INVALID_USER));
         return new CustomUserDetail(user);
     }
 }

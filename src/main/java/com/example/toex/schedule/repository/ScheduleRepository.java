@@ -1,7 +1,7 @@
 package com.example.toex.schedule.repository;
 
-import com.example.toex.schedule.dto.Schedule;
-import com.example.toex.schedule.dto.ScheduleType;
+import com.example.toex.schedule.domain.Schedule;
+import com.example.toex.schedule.domain.ScheduleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +12,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByUserId(Long userId);
 
     List<Schedule> findByUserIdAndType(Long userId, ScheduleType type);
+
+    void deleteByUserId(Long userId);
 }

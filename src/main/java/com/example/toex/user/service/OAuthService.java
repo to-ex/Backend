@@ -8,6 +8,8 @@ import com.example.toex.board.repository.ScrapsRepository;
 import com.example.toex.client.GoogleClient;
 import com.example.toex.client.KakaoClient;
 import com.example.toex.client.NaverClient;
+import com.example.toex.common.exception.CustomException;
+import com.example.toex.common.exception.enums.ErrorCode;
 import com.example.toex.jwt.JwtAuthenticationProvider;
 import com.example.toex.schedule.repository.ScheduleRepository;
 import com.example.toex.user.User;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @RequiredArgsConstructor
 @Service
 public class OAuthService {
@@ -39,6 +42,7 @@ public class OAuthService {
     private final ScheduleRepository scheduleRepository;
     private final LikesRepository likesRepository;
     private final ScrapsRepository scrapsRepository;
+
 
     private static final String DEFAULT_USER_IMAGE_URL = "https://toex-file.s3.ap-northeast-2.amazonaws.com/userImages/default+profile.png";
 
@@ -65,8 +69,6 @@ public class OAuthService {
         String newAccessToken = jwtAuthenticationProvider.createAccessToken(user.getUserId(), user.getEmail());
         String newRefreshToken = jwtAuthenticationProvider.createRefreshToken(user.getUserId(), user.getEmail());
 
-
-
         // Refresh Token 갱신
         user.setRefreshToken(newRefreshToken);
         userRepository.save(user);
@@ -87,6 +89,10 @@ public class OAuthService {
     }
 
     private <T extends UserInfo> User newMember(T info) {
+        if (userRepository.findByEmail(info.getEmail()).isPresent()) {
+            throw new CustomException(ErrorCode.ALREADY_EXIST_USER);
+        }
+
         String refreshToken = jwtAuthenticationProvider.createRefreshToken(null, info.getEmail());
 
         User user = User.builder()
@@ -120,7 +126,7 @@ public class OAuthService {
         Long userId = jwtAuthenticationProvider.getUserId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER));
 
         // 회원이 작성한 게시글 및 해당 게시글의 댓글 삭제
         List<Board> boardList = boardRepository.findByUserId(user.getUserId());
