@@ -15,6 +15,7 @@ public class BoardRes {
     private String author;
     private String authorProfileImgUrl;
     private String title;
+    private String content;
     private BoardCategory boardCategory;
     private CountryTag countryTag;
     private LocalDateTime createdDt;
@@ -31,6 +32,7 @@ public class BoardRes {
         this.author = author.getName();
         this.authorProfileImgUrl = author.getUserImage();
         this.title = board.getTitle();
+        this.content = board.getContent();
         this.boardCategory = board.getBoardCategory();
         this.countryTag = board.getCountryTag();
         this.createdDt = board.getCreatedDt();
