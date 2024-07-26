@@ -6,6 +6,7 @@ import com.example.toex.board.dto.res.BoardDetailRes;
 import com.example.toex.board.dto.res.BoardRes;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -56,8 +57,20 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                                 user,
                                 this.getLikesCountSubquery(),
                                 board.comments.size(),
-                                this.getIsLikedSubquery(userId),
-                                this.getIsScrappedSubquery(userId)
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(likes.likeId)
+                                                .from(likes)
+                                                .where(likes.boardId.eq(board.boardId).and(likes.userId.eq(userId)).and(likes.delYn.eq("N")))
+                                        ,
+                                        "isLiked"
+                                ),
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(scraps.scrapId)
+                                                .from(scraps)
+                                                .where(scraps.boardId.eq(board.boardId).and(scraps.userId.eq(userId)).and(scraps.delYn.eq("N")))
+                                        ,
+                                        "isScrapped"
+                                )
                         )));
     }
 
@@ -73,8 +86,20 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                         user,
                         this.getLikesCountSubquery(),
                         board.comments.size(),
-                        this.getIsLikedSubquery(userId),
-                        this.getIsScrappedSubquery(userId)))
+                        ExpressionUtils.as(
+                                JPAExpressions.select(likes.likeId)
+                                        .from(likes)
+                                        .where(likes.boardId.eq(board.boardId).and(likes.userId.eq(userId)).and(likes.delYn.eq("N")))
+                                ,
+                                "isLiked"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(scraps.scrapId)
+                                        .from(scraps)
+                                        .where(scraps.boardId.eq(board.boardId).and(scraps.userId.eq(userId)).and(scraps.delYn.eq("N")))
+                                ,
+                                "isScrapped"
+                        )))
                 .from(board)
                 .where(builder)
                 .leftJoin(user).on(board.userId.eq(user.userId))
@@ -99,8 +124,20 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                                 user,
                                 this.getLikesCountSubquery(),
                                 board.comments.size(),
-                                this.getIsLikedSubquery(userId),
-                                this.getIsScrappedSubquery(userId)
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(likes.likeId)
+                                                .from(likes)
+                                                .where(likes.boardId.eq(board.boardId).and(likes.userId.eq(userId)).and(likes.delYn.eq("N")))
+                                                ,
+                                        "isLiked"
+                                ),
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(scraps.scrapId)
+                                                .from(scraps)
+                                                .where(scraps.boardId.eq(board.boardId).and(scraps.userId.eq(userId)).and(scraps.delYn.eq("N")))
+                                                ,
+                                        "isScrapped"
+                                )
                         )));
     }
 
