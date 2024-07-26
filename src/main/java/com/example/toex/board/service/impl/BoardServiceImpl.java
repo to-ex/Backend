@@ -82,12 +82,12 @@ public class BoardServiceImpl implements BoardService {
 
         BoardDetailRes boardDetailRes = boardRepository.selectBoardDetail(boardId, userId);
 
-        if (userId == boardDetailRes.getUserId()) {
-            boardDetailRes.setIsMine();
-        }
-
         if (boardDetailRes == null) {
             throw new CustomException(ErrorCode.INVALID_BOARD);
+        }
+
+        if (boardDetailRes.getUserId().equals(userId)) {
+            boardDetailRes.setIsMine();
         }
 
         List<BoardDetailRes.CommentRes> commentResList = boardRepository.selectCommentList(boardId);

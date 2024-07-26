@@ -43,7 +43,7 @@ public class BoardController {
     }
 
     @GetMapping("/board/{boardId}")
-    public ResponseEntity<?> getBoardList(@PageableDefault Pageable pageable,
+    public ResponseEntity<?> getBoardDetail(@PageableDefault Pageable pageable,
                                           @PathVariable Long boardId,
                                           @AuthenticationPrincipal CustomUserDetail userDetail){
         return ResponseEntity.ok(BasicResponse.ofSuccess(boardService.getBoardDetail(pageable, boardId, userDetail)));
