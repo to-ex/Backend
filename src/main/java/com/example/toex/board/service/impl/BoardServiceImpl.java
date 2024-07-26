@@ -81,6 +81,11 @@ public class BoardServiceImpl implements BoardService {
         Long userId = getUserId(userDetail, false);
 
         BoardDetailRes boardDetailRes = boardRepository.selectBoardDetail(boardId, userId);
+
+        if (userId == boardDetailRes.getUserId()) {
+            boardDetailRes.setIsMine();
+        }
+
         if (boardDetailRes == null) {
             throw new CustomException(ErrorCode.INVALID_BOARD);
         }

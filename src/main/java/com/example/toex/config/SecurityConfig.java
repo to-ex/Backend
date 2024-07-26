@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(PERMIT_ALL_REQUESTS).permitAll()
+                                .requestMatchers("/favicon.ico").permitAll()
                                 .requestMatchers("/api/v1/auth/login/**").permitAll()
                                 .requestMatchers("/api/v1/board").permitAll() // GET 요청은 인증 없이 허용
                                 .requestMatchers("/api/v1/engTest/**").permitAll()

@@ -32,6 +32,10 @@ public class BoardDetailRes {
     private Boolean isScrapped;
     private Page<CommentRes> commentList;
 
+    private Long userId;
+
+    private String isMine;
+
     @Builder
     public BoardDetailRes(Board board, User author, Long likes, int comments, Long likeId, Long scrapId) {
         this.author = author.getName();
@@ -46,10 +50,16 @@ public class BoardDetailRes {
         this.comments = comments;
         this.isLiked = (likeId != null);
         this.isScrapped = (scrapId != null);
+        this.userId = board.getUserId();
+        this.isMine="N";
     }
 
     public void setCommentList(Page<CommentRes> commentList) {
         this.commentList = commentList;
+    }
+
+    public void setIsMine(){
+        this.isMine = "Y";
     }
 
     @Getter

@@ -34,6 +34,7 @@ public class Board extends BaseEntity {
     private CountryTag countryTag;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)
