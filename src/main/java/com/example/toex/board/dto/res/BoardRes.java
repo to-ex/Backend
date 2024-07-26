@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 public class BoardRes {
     private Long boardId;
     private String author;
-    // TODO
     private String authorProfileImgUrl;
     private String title;
     private BoardCategory boardCategory;
@@ -30,6 +29,7 @@ public class BoardRes {
     public BoardRes(Board board, User author, Long likes, int comments, Long likeId, Long scrapId) {
         this.boardId = board.getBoardId();
         this.author = author.getName();
+        this.authorProfileImgUrl = author.getUserImage();
         this.title = board.getTitle();
         this.boardCategory = board.getBoardCategory();
         this.countryTag = board.getCountryTag();

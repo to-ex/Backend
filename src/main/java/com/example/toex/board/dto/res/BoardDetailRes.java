@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Getter
 public class BoardDetailRes {
     private String author;
-    // TODO
     private String authorProfileImgUrl;
     private String title;
     private BoardCategory boardCategory;
@@ -39,6 +38,7 @@ public class BoardDetailRes {
     @Builder
     public BoardDetailRes(Board board, User author, Long likes, int comments, Long likeId, Long scrapId) {
         this.author = author.getName();
+        this.authorProfileImgUrl = author.getUserImage();
         this.title = board.getTitle();
         this.boardCategory = board.getBoardCategory();
         this.countryTag = board.getCountryTag();
@@ -67,8 +67,7 @@ public class BoardDetailRes {
         private Long commentId;
         private Long commenterId;
         private String commenterName;
-        private LocalDateTime creaatedDt;
-        // TODO
+        private LocalDateTime createdDt;
         private String profileImgUrl;
         private String content;
 
@@ -77,7 +76,8 @@ public class BoardDetailRes {
             this.commentId = comment.getCommentId();
             this.commenterId = commenter.getUserId();
             this.commenterName = commenter.getName();
-            this.creaatedDt = comment.getCreatedDt();
+            this.profileImgUrl = commenter.getUserImage();
+            this.createdDt = comment.getCreatedDt();
             this.content = comment.getContent();
         }
     }
