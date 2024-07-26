@@ -47,6 +47,22 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         }
         builder.and(board.delYn.eq("N"));
 
+        if (userId == null) {
+            return queryFactory.from(board)
+                    .where(builder)
+                    .leftJoin(user).on(board.userId.eq(user.userId))
+                    .transform(groupBy(board.boardId)
+                            .list(Projections.constructor(
+                                    BoardRes.class,
+                                    board,
+                                    user,
+                                    this.getLikesCountSubquery(),
+                                    board.comments.size(),
+                                    Expressions.nullExpression(Long.class),
+                                    Expressions.nullExpression(Long.class)
+                                    )));
+        }
+
         return queryFactory.from(board)
                 .where(builder)
                 .leftJoin(user).on(board.userId.eq(user.userId))
